@@ -1,0 +1,15 @@
+---
+import { getCollection } from "astro:content";
+import ProjectList from "../../components/ProjectList.astro";
+import SiteLayout from "../../layouts/SiteLayout.astro";
+
+const projects = (await getCollection("projects"))
+  .sort((first, second) => first.data.order - second.data.order);
+---
+
+<SiteLayout title="Projects" description="Aureka Systems e.U., Obsidian plugins, Realmglass, and elseif.codes.">
+  <div class="shell page">
+    <header class="page-heading"><h1>Projects</h1></header>
+    <ProjectList projects={projects} />
+  </div>
+</SiteLayout>

@@ -1,0 +1,26 @@
+---
+import type { CollectionEntry } from "astro:content";
+
+interface Props
+{
+  articles: CollectionEntry<"writing">[];
+}
+
+const { articles } = Astro.props;
+const dateFormat = new Intl.DateTimeFormat("en-GB", { dateStyle: "medium", timeZone: "UTC" });
+---
+
+<ul class="entry-list">
+  {articles.map(({ id, data }) => (
+    <li>
+      <a class="entry" href={`/writing/${id}/`}>
+        <span class="entry-tag">
+          <time datetime={data.published.toISOString()}>{dateFormat.format(data.published)}</time>
+          {data.draft && " · Draft"}
+        </span>
+        <span class="entry-title">{data.title}</span>
+        <span class="entry-description">{data.description}</span>
+      </a>
+    </li>
+  ))}
+</ul>

@@ -1,0 +1,29 @@
+---
+import { getCollection, render } from "astro:content";
+import SiteLayout from "../../layouts/SiteLayout.astro";
+
+export async function getStaticPaths()
+{
+  const articles = await getCollection("writing", ({ data }) => import.meta.env.DEV || !data.draft);
+  return articles.map((article) => ({ params: { id: article.id }, props: { article } }));
+}
+
+const { article } = Astro.props;
+const { title, description, published, draft } = article.data;
+const { Content } = await render(article);
+const dateFormat = new Intl.DateTimeFormat("en-GB", { dateStyle: "medium", timeZone: "UTC" });
+---
+
+<SiteLayout title={title} description={description}>
+  <article class="shell page">
+    <header class="page-heading">
+      <a class="back-link" href="/writing/">All posts</a>
+      <p class="entry-tag">
+        <time datetime={published.toISOString()}>{dateFormat.format(published)}</time>{draft && " · Draft"}
+      </p>
+      <h1>{title}</h1>
+      <p>{description}</p>
+    </header>
+    <div class="prose"><Content /></div>
+  </article>
+</SiteLayout>

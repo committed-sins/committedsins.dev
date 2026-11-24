@@ -1,0 +1,51 @@
+---
+import { Image } from "astro:assets";
+import { getCollection } from "astro:content";
+import copperMonogram from "../assets/brand/committed-sins-copper.png";
+import ArticleList from "../components/ArticleList.astro";
+import ProjectList from "../components/ProjectList.astro";
+import SiteLayout from "../layouts/SiteLayout.astro";
+
+const projects = (await getCollection("projects"))
+  .sort((first, second) => first.data.order - second.data.order);
+const articles = (await getCollection("writing", ({ data }) => import.meta.env.DEV || !data.draft))
+  .sort((first, second) => second.data.published.getTime() - first.data.published.getTime());
+---
+
+<SiteLayout title="Committed Sins" description="Servers, websites, and other inconveniences. Projects and occasional writing.">
+  <div class="hero-wrap">
+    <section class="shell hero">
+      <div class="hero-copy">
+        <h1>Committed<br /> Sins</h1>
+        <p class="tagline">changelogs nobody asked for</p>
+        <p class="hero-subtitle">Servers, websites, and other inconveniences.</p>
+      </div>
+      <div class="hero-art" aria-hidden="true">
+        <Image
+          src={copperMonogram}
+          alt=""
+          widths={[320, 480, 720]}
+          sizes="(max-width: 42rem) min(78vw, 21rem), (max-width: 74rem) 37vw, 26rem"
+          format="webp"
+          priority
+        />
+      </div>
+    </section>
+  </div>
+  <section class="shell section" aria-labelledby="projects">
+    <div class="section-heading">
+      <h2 id="projects">Projects</h2>
+      <a href="/projects/">All projects</a>
+    </div>
+    <ProjectList projects={projects.slice(0, 3)} />
+  </section>
+  {articles.length > 0 && (
+    <section class="shell section home-writing" aria-labelledby="writing">
+      <div class="section-heading">
+        <h2 id="writing">A place for the changelogs</h2>
+        <a href="/writing/">All posts</a>
+      </div>
+      <ArticleList articles={articles.slice(0, 2)} />
+    </section>
+  )}
+</SiteLayout>

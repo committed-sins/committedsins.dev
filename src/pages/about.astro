@@ -1,0 +1,42 @@
+---
+import { Image } from "astro:assets";
+import glassImage from "../assets/about/mjs-glass.png";
+import SiteLayout from "../layouts/SiteLayout.astro";
+---
+
+<SiteLayout title="About" description="About Michael J. Stallinger and Committed Sins.">
+  <article>
+    <header class="hero-wrap">
+      <div class="shell hero about-hero">
+        <div>
+          <h1>Michael J.<br /> Stallinger</h1>
+          <p class="hero-subtitle">Senior software developer. Turns small inconveniences into projects, occasionally companies.</p>
+          <p class="about-roles">
+            <span>Founder of <a href="https://aureka.at">Aureka Systems e.U.</a></span>
+            <span>Team leader, development consultant at <a href="https://bmd.at">BMD Systemhaus GmbH</a></span>
+          </p>
+        </div>
+        <div class="about-frame">
+          <Image
+            src={glassImage}
+            alt=""
+            width={960}
+            widths={[400, 640, 960]}
+            sizes="(max-width: 44rem) calc(100vw - 3rem), (max-width: 74rem) 36vw, 26rem"
+            format="webp"
+            priority
+          />
+        </div>
+      </div>
+    </header>
+    <div class="shell section">
+      <div class="prose">
+        <p>Committed Sins is my personal site. It’s where I keep the changelogs for things that were supposed to take five minutes.</p>
+        <div class="about-links">
+          <a href="/projects/">Explore my projects</a>
+          <a href="https://www.linkedin.com/in/mjstallinger/">LinkedIn</a>
+        </div>
+      </div>
+    </div>
+  </article>
+</SiteLayout>
