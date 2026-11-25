@@ -1,0 +1,17 @@
+{
+	admin off
+	persist_config off
+}
+
+:80 {
+	root * /srv/site
+	encode zstd gzip
+	header {
+		X-Content-Type-Options nosniff
+		Referrer-Policy strict-origin-when-cross-origin
+		Content-Security-Policy "default-src 'self'; img-src 'self' data:; base-uri 'none'; form-action 'none'; frame-ancestors 'none'"
+		Permissions-Policy "camera=(), microphone=(), geolocation=()"
+		-Server
+	}
+	file_server
+}
