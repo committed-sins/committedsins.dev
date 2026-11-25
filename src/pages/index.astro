@@ -14,7 +14,7 @@ const articles = (await getCollection("writing", ({ data }) => import.meta.env.D
 
 <SiteLayout title="Committed Sins" description="Servers, websites, and other inconveniences. Projects and occasional writing.">
   <div class="hero-wrap">
-    <section class="shell hero">
+    <section class="shell hero home-hero">
       <div class="hero-copy">
         <h1>Committed<br /> Sins</h1>
         <p class="tagline">changelogs nobody asked for</p>
@@ -25,9 +25,8 @@ const articles = (await getCollection("writing", ({ data }) => import.meta.env.D
           src={copperMonogram}
           alt=""
           widths={[320, 480, 720]}
-          sizes="(max-width: 42rem) min(78vw, 21rem), (max-width: 74rem) 37vw, 26rem"
+          sizes="min(35vw, 20rem)"
           format="webp"
-          priority
         />
       </div>
     </section>
