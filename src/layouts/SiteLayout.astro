@@ -36,7 +36,9 @@ const navigation = [
     <header class="site-header">
       <div class="shell header-inner">
         <a class="brand-icon" href="/" aria-current={Astro.url.pathname === "/" ? "page" : undefined}>
-          <Image src={copperMonogram} alt={siteName} width={88} format="webp" loading="eager" />
+          <span class="brand-icon-image">
+            <Image src={copperMonogram} alt={siteName} width={88} format="webp" loading="eager" />
+          </span>
         </a>
         <nav aria-label="Main">
           {navigation.map(({ label, href }) => (
