@@ -88,6 +88,8 @@ nav a:hover, nav a[aria-current] { color: var(--copper); text-decoration: underl
 .about-roles { display: grid; gap: 0.45rem; margin-top: 1.8rem; color: #e2d8d2; line-height: 1.5; }
 .about-roles a { color: #f1b999; }
 .about-frame {
+  width: min(100%, 23rem);
+  justify-self: end;
   padding: clamp(0.4rem, 1vw, 0.75rem);
   border: 1px solid #bb815f;
   background: #1b1717;
@@ -104,6 +106,7 @@ nav a:hover, nav a[aria-current] { color: var(--copper); text-decoration: underl
 .empty-state { border-top: 1px solid var(--rule); padding-top: 1.35rem; color: var(--muted); }
 .site-footer { border-top: 1px solid var(--rule); }
 .footer-inner { min-height: 5rem; color: var(--muted); font-size: 0.9rem; }
+.footer-links { display: flex; flex-wrap: wrap; gap: 0.45rem 1.2rem; }
 
 @media (max-width: 44rem) {
   .shell { width: calc(100% - 2rem); }
@@ -111,6 +114,6 @@ nav a:hover, nav a[aria-current] { color: var(--copper); text-decoration: underl
   .hero { grid-template-columns: 1fr; }
   .hero-art { width: min(78vw, 21rem); margin-block: -0.8rem -1.8rem; justify-self: center; }
   .about-hero { gap: 2rem; }
-  .about-frame { width: min(100%, 32rem); }
+  .about-frame { justify-self: center; }
   .entry { grid-template-columns: 1fr; gap: 0.3rem; }
 }

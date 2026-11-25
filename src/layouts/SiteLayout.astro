@@ -50,7 +50,10 @@ const navigation = [
     <footer class="site-footer">
       <div class="shell footer-inner">
         <a href="/">Committed Sins</a>
-        <a href="https://github.com/committed-sins">GitHub</a>
+        <div class="footer-links">
+          <a href="/imprint/" aria-current={Astro.url.pathname === "/imprint/" ? "page" : undefined}>Imprint</a>
+          <a href="https://github.com/committed-sins">GitHub</a>
+        </div>
       </div>
     </footer>
   </body>

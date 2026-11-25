@@ -1,0 +1,29 @@
+---
+import SiteLayout from "../layouts/SiteLayout.astro";
+---
+
+<SiteLayout title="Imprint" description="Ownership and editorial focus of Committed Sins.">
+  <div class="shell page">
+    <header class="page-heading"><h1>Imprint</h1></header>
+    <dl>
+      <dt>Site owner</dt>
+      <dd>Michael J. Stallinger</dd>
+      <dt>Place of residence</dt>
+      <dd>Bad Hall, Austria</dd>
+      <dt>Editorial focus</dt>
+      <dd>Personal projects and occasional writing about software and infrastructure.</dd>
+    </dl>
+  </div>
+</SiteLayout>
+
+<style>
+  dl {
+    display: grid;
+    grid-template-columns: max-content minmax(0, 1fr);
+    gap: 0.6rem 1.4rem;
+    margin: 0;
+    line-height: 1.5;
+  }
+  dt { font-weight: 700; }
+  dd { margin: 0; color: var(--muted); }
+</style>
