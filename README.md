@@ -18,4 +18,4 @@ pnpm dev
 
 `pnpm build` generates the static site in `dist/`. Use `pnpm preview` to view that output locally.
 
-When publishing, rebuild and include the updated `dist/` alongside the source changes in your signed commit to `main`. Blossom serves that build after its next pull. See the [Blossom deployment notes](deploy/blossom/README.md) for how the timer and proxy fit together.
+Push signed source commits to `main` to start the **Build for Blossom** GitHub workflow. You can also start it from the Actions tab. See the [Blossom deployment notes](deploy/blossom/README.md) for setup and troubleshooting.

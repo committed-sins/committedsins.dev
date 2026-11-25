@@ -6,8 +6,8 @@ services:
     restart: unless-stopped
     volumes:
       - type: bind
-        source: ../../dist
-        target: /srv/site
+        source: ../../.blossom
+        target: /srv
         read_only: true
         bind:
           create_host_path: false
