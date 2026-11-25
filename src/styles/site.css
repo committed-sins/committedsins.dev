@@ -101,19 +101,33 @@ nav a:hover, nav a[aria-current] { color: var(--copper); text-decoration: underl
 .entry-title { font-size: clamp(1.2rem, 2.3vw, 1.66rem); font-weight: 700; letter-spacing: -0.035em; }
 .entry-description { color: var(--muted); line-height: 1.55; }
 
-.about-hero h1 { font-size: clamp(3.4rem, 7.2vw, 6.5rem); }
-.about-hero .subtitle { max-width: 32rem; }
+.about-banner .subtitle { max-width: 48rem; }
+.about-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 38rem) minmax(0, 17rem);
+  align-items: start;
+  gap: clamp(2rem, 6vw, 5rem);
+}
 .about-frame {
-  width: min(100%, 23rem);
-  justify-self: end;
-  padding: clamp(0.4rem, 1vw, 0.75rem);
+  width: 100%;
+  padding: 0.45rem;
   border: 1px solid #bb815f;
   background: #1b1717;
   box-shadow: 0.35rem 0.35rem 0 #a262474d;
 }
 .about-frame img { display: block; width: 100%; height: auto; }
-.about-work ul { margin-top: 0; }
-.about-links { display: flex; flex-wrap: wrap; gap: 0.5rem 1.4rem; margin-top: 1em; }
+.about-work dl { margin: 0; border-bottom: 1px solid var(--rule); }
+.about-work dl > div {
+  display: grid;
+  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1fr);
+  gap: 0.15rem 1rem;
+  padding-block: 0.6rem;
+  border-top: 1px solid var(--rule);
+}
+.about-work dd { margin: 0; color: var(--muted); }
+.profile-links { margin: 0; padding: 0; list-style: none; }
+.profile-links a { display: inline-flex; align-items: center; gap: 0.65rem; padding-block: 0.25rem; }
+.profile-links svg { flex: none; color: var(--muted); }
 .prose { max-width: 65ch; font-size: 1.1rem; line-height: 1.65; }
 .prose p + p { margin-top: 1em; }
 .prose p + a { display: inline-block; margin-top: 1em; }
@@ -136,8 +150,8 @@ nav a:hover, nav a[aria-current] { color: var(--copper); text-decoration: underl
   .home-hero h1 { font-size: clamp(2.7rem, 12vw, 3.7rem); }
   .hero-wrap .subtitle { margin-top: 0.9rem; }
   .hero-art { display: none; }
-  .about-hero { gap: 2rem; }
-  .about-frame { justify-self: center; }
+  .about-layout { grid-template-columns: 1fr; gap: 2rem; }
+  .about-frame { width: min(100%, 12rem); }
   .entry { grid-template-columns: 1fr; gap: 0.3rem; }
 }
 
@@ -146,6 +160,7 @@ nav a:hover, nav a[aria-current] { color: var(--copper); text-decoration: underl
   .brand-icon-image { width: 2.5rem; }
   nav { column-gap: 0.55rem; }
   nav a { font-size: 0.86rem; }
+  .about-work dl > div { grid-template-columns: 1fr; }
   .footer-inner { align-items: flex-start; flex-direction: column; gap: 0.75rem; padding-block: 1.1rem; }
 }
 

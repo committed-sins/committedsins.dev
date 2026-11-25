@@ -1,49 +1,62 @@
 ---
 import { Image } from "astro:assets";
 import glassImage from "../assets/about/mjs-glass.png";
+import GitHubIcon from "../assets/about/profiles/github.svg";
+import LinkedInIcon from "../assets/about/profiles/linkedin.svg";
+import StackOverflowIcon from "../assets/about/profiles/stack-overflow.svg";
 import SiteLayout from "../layouts/SiteLayout.astro";
+
+const profiles = [
+  { name: "LinkedIn", href: "https://www.linkedin.com/in/mjstallinger/", Icon: LinkedInIcon },
+  { name: "GitHub", href: "https://github.com/mjStallinger", Icon: GitHubIcon },
+  { name: "Stack Overflow", href: "https://stackoverflow.com/users/mjstallinger", Icon: StackOverflowIcon },
+];
 ---
 
 <SiteLayout title="Michael J. Stallinger" description="About Michael J. Stallinger and Committed Sins.">
   <article>
     <header class="hero-wrap">
-      <div class="shell hero about-hero">
-        <div>
-          <h1>Michael J.<br /> Stallinger</h1>
-          <p class="subtitle">Senior software developer.<br />Turns small inconveniences into projects, occasionally companies.</p>
-        </div>
-        <div class="about-frame">
-          <Image
-            src={glassImage}
-            alt=""
-            width={960}
-            widths={[400, 640, 960]}
-            sizes="(max-width: 44rem) min(calc(100vw - 3rem), 22rem), min(36vw, 22rem)"
-            format="webp"
-            priority
-          />
-        </div>
+      <div class="shell page-banner about-banner">
+        <h1>Michael J. Stallinger</h1>
+        <p class="subtitle">Senior software developer.<br />Turns small inconveniences into projects, occasionally companies.</p>
       </div>
     </header>
-    <section class="shell section" aria-labelledby="about">
-      <div class="section-heading">
-        <h2 id="about">About</h2>
-      </div>
+    <div class="shell section about-layout">
       <div class="prose">
         <p>Committed Sins is my personal site.<br />It’s where I keep the changelogs for things that were supposed to take five minutes.</p>
         <p>One project especially close to my heart is <a href="/projects/realmglass/">Realmglass</a>, a Minecraft dashboard I’m building with and for my son.</p>
         <section class="about-work" aria-labelledby="work">
-          <h3 id="work">Work</h3>
-          <ul>
-            <li>Founder of <a href="https://aureka.at/">Aureka Systems e.U.</a></li>
-            <li>Team leader, development consultant at <a href="https://bmd.at/">BMD Systemhaus GmbH</a></li>
+          <h2 id="work">Work</h2>
+          <dl>
+            <div>
+              <dt><a href="https://aureka.at/">Aureka Systems e.U.</a></dt>
+              <dd>Founder</dd>
+            </div>
+            <div>
+              <dt><a href="https://bmd.at/">BMD Systemhaus GmbH</a></dt>
+              <dd>Team leader, development consultant</dd>
+            </div>
+          </dl>
+        </section>
+        <section aria-labelledby="profiles">
+          <h2 id="profiles">Profiles</h2>
+          <ul class="profile-links" role="list">
+            {profiles.map(({ name, href, Icon }) => (
+              <li><a href={href}><Icon aria-hidden="true" focusable="false" />{name}</a></li>
+            ))}
           </ul>
         </section>
-        <div class="about-links">
-          <a href="/projects/">Explore my projects</a>
-          <a href="https://www.linkedin.com/in/mjstallinger/">LinkedIn</a>
-        </div>
       </div>
-    </section>
+      <div class="about-frame">
+        <Image
+          src={glassImage}
+          alt=""
+          width={512}
+          widths={[192, 272, 384, 512]}
+          sizes="(max-width: 44rem) 12rem, 17rem"
+          format="webp"
+        />
+      </div>
+    </div>
   </article>
 </SiteLayout>
