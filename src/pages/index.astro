@@ -13,8 +13,8 @@ const articles = (await getCollection("writing", ({ data }) => import.meta.env.D
 ---
 
 <SiteLayout title="Committed Sins" description="Servers, websites, and other inconveniences. Projects and occasional writing.">
-  <div class="hero-wrap">
-    <section class="shell hero home-hero">
+  <header class="hero-wrap">
+    <div class="shell hero home-hero">
       <div class="hero-copy">
         <h1>Committed<br /> Sins</h1>
         <p class="tagline">changelogs nobody asked for</p>
@@ -29,8 +29,8 @@ const articles = (await getCollection("writing", ({ data }) => import.meta.env.D
           format="webp"
         />
       </div>
-    </section>
-  </div>
+    </div>
+  </header>
   <section class="shell section" aria-labelledby="projects">
     <div class="section-heading">
       <h2 id="projects">Projects</h2>

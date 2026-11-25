@@ -6,6 +6,7 @@
   --ink: #1b1717;
   --paper: #faf7f3;
   --copper: #e1a17c;
+  --hero-text: #e2d8d2;
   --muted: #655851;
   --rule: #d5c6bd;
   --wash: #f0e7e0;
@@ -44,18 +45,22 @@ nav a:hover, nav a[aria-current] { color: var(--copper); text-decoration: underl
   gap: clamp(1rem, 4vw, 4rem);
   padding-block: clamp(3rem, 6.5vw, 5.5rem);
 }
-.hero h1, .page h1 {
+.hero h1, .page-banner h1 {
   font-family: var(--display);
   font-weight: 400;
   line-height: 0.98;
   letter-spacing: -0.065em;
   overflow-wrap: anywhere;
 }
-.hero h1 { font-size: clamp(3.4rem, 8vw, 7.25rem); }
 .home-hero { padding-block: clamp(2.25rem, 4vw, 3.4rem); }
 .home-hero h1 { font-size: clamp(3.15rem, 7.2vw, 6.1rem); }
+.page-banner { padding-block: clamp(2.2rem, 4.5vw, 3.6rem); }
+.page-banner h1 { font-size: clamp(2.8rem, 6.5vw, 5.55rem); }
+.page-banner .back-link { display: inline-block; margin-bottom: 1.25rem; }
+.page-banner .entry-tag { margin-bottom: 0.55rem; color: var(--copper); }
+.page-banner-description { max-width: 38rem; margin-top: 1.15rem; color: var(--hero-text); font-size: 1.15rem; line-height: 1.55; }
 .tagline { margin-top: 1.2rem; color: #f1b999; font: clamp(0.9rem, 1.65vw, 1.08rem)/1.45 var(--mono); }
-.hero-subtitle { margin-top: 0.85rem; color: #e2d8d2; font: clamp(1.2rem, 2.4vw, 1.75rem)/1.35 var(--display); }
+.hero-subtitle { margin-top: 0.85rem; color: var(--hero-text); font: clamp(1.2rem, 2.4vw, 1.75rem)/1.35 var(--display); }
 .hero-art {
   width: 100%;
   max-width: 20rem;
@@ -80,14 +85,9 @@ nav a:hover, nav a[aria-current] { color: var(--copper); text-decoration: underl
 .entry-title { font-size: clamp(1.2rem, 2.3vw, 1.66rem); font-weight: 700; letter-spacing: -0.035em; }
 .entry-description { color: var(--muted); line-height: 1.55; }
 
-.page { padding-block: clamp(3.25rem, 7vw, 6rem); }
-.page h1 { font-size: clamp(3.15rem, 7.9vw, 6.4rem); }
-.page-heading { margin-bottom: 2.75rem; }
-.page-heading > p:not(.entry-tag) { max-width: 38rem; margin-top: 1.5rem; color: var(--muted); font-size: 1.2rem; line-height: 1.55; }
-.page-heading .entry-tag { margin-bottom: 0.6rem; }
 .about-hero h1 { font-size: clamp(3.4rem, 7.2vw, 6.5rem); }
 .about-hero .hero-subtitle { max-width: 32rem; margin-top: 1.3rem; }
-.about-roles { display: grid; gap: 0.45rem; margin-top: 1.8rem; color: #e2d8d2; line-height: 1.5; }
+.about-roles { display: grid; gap: 0.45rem; margin-top: 1.8rem; color: var(--hero-text); line-height: 1.5; }
 .about-roles a { color: #f1b999; }
 .about-frame {
   width: min(100%, 23rem);
@@ -99,7 +99,6 @@ nav a:hover, nav a[aria-current] { color: var(--copper); text-decoration: underl
 }
 .about-frame img { display: block; width: 100%; height: auto; }
 .about-links { display: flex; flex-wrap: wrap; gap: 0.5rem 1.4rem; margin-top: 1em; }
-.back-link { display: inline-block; margin-bottom: 1.5rem; }
 .prose { max-width: 65ch; font-size: 1.1rem; line-height: 1.65; }
 .prose p + p { margin-top: 1em; }
 .prose p + a { display: inline-block; margin-top: 1em; }

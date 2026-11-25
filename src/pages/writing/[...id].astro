@@ -1,5 +1,6 @@
 ---
 import { getCollection, render } from "astro:content";
+import PageBanner from "../../components/PageBanner.astro";
 import SiteLayout from "../../layouts/SiteLayout.astro";
 
 export async function getStaticPaths()
@@ -15,15 +16,15 @@ const dateFormat = new Intl.DateTimeFormat("en-GB", { dateStyle: "medium", timeZ
 ---
 
 <SiteLayout title={title} description={description}>
-  <article class="shell page">
-    <header class="page-heading">
+  <article>
+    <PageBanner title={title} description={description}>
       <a class="back-link" href="/writing/">All posts</a>
       <p class="entry-tag">
         <time datetime={published.toISOString()}>{dateFormat.format(published)}</time>{draft && " · Draft"}
       </p>
-      <h1>{title}</h1>
-      <p>{description}</p>
-    </header>
-    <div class="prose"><Content /></div>
+    </PageBanner>
+    <div class="shell section">
+      <div class="prose"><Content /></div>
+    </div>
   </article>
 </SiteLayout>

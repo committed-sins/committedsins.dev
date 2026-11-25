@@ -1,6 +1,7 @@
 ---
 import { getCollection } from "astro:content";
 import ArticleList from "../../components/ArticleList.astro";
+import PageBanner from "../../components/PageBanner.astro";
 import SiteLayout from "../../layouts/SiteLayout.astro";
 
 const articles = (await getCollection("writing", ({ data }) => import.meta.env.DEV || !data.draft))
@@ -8,8 +9,8 @@ const articles = (await getCollection("writing", ({ data }) => import.meta.env.D
 ---
 
 <SiteLayout title="A place for the changelogs" description="Occasional articles by Michael J. Stallinger.">
-  <div class="shell page">
-    <header class="page-heading"><h1>A place for the changelogs</h1></header>
+  <PageBanner title="A place for the changelogs" />
+  <div class="shell section">
     {articles.length > 0 ? <ArticleList articles={articles} /> : <p class="empty-state">No articles yet.</p>}
   </div>
 </SiteLayout>
