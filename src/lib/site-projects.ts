@@ -22,8 +22,8 @@ export async function getSiteProjects()
         data: {
           title: profile.title,
           description: profile.description || local?.data.description || "",
-          category: local?.data.category ?? "GitHub",
-          status: local?.data.status,
+          category: profile.category ?? local?.data.category ?? "Tools",
+          status: profile.status,
         },
         local,
         profile,

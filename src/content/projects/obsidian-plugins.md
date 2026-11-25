@@ -1,7 +1,7 @@
 ---
 title: Obsidian plugins
 description: Tools that grew out of how I use Obsidian.
-category: Software
+category: Plugins
 status: Community plugins and work in progress
 order: 2
 profile: true

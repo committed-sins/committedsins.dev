@@ -6,10 +6,11 @@ import SiteLayout from "../../layouts/SiteLayout.astro";
 
 const articles = (await getCollection("writing", ({ data }) => import.meta.env.DEV || !data.draft))
   .sort((first, second) => second.data.published.getTime() - first.data.published.getTime());
+const title = "The changelogs";
 ---
 
-<SiteLayout title="A place for the changelogs" description="Occasional articles by Michael J. Stallinger.">
-  <PageBanner title="A place for the changelogs" description="Occasional writing" />
+<SiteLayout title={title} description="Occasional articles by Michael J. Stallinger.">
+  <PageBanner title={title} description="Occasional writing" />
   <div class="shell section">
     {articles.length > 0 ? <ArticleList articles={articles} /> : <p class="empty-state">No articles yet.</p>}
   </div>

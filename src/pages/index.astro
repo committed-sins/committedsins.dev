@@ -32,7 +32,10 @@ const articles = (await getCollection("writing", ({ data }) => import.meta.env.D
       </div>
     </div>
   </header>
-  <section class="shell section" aria-labelledby="projects">
+  <div class="shell home-intro">
+    <p class="prose">I started Committed Sins to give my side projects a home. It’s also where I write down the details I’ll otherwise have to figure out twice.</p>
+  </div>
+  <section class="shell section section-followup" aria-labelledby="projects">
     <div class="section-heading">
       <div>
         <h2 id="projects">Projects</h2>
@@ -55,7 +58,7 @@ const articles = (await getCollection("writing", ({ data }) => import.meta.env.D
     <section class="shell section section-followup" aria-labelledby="writing">
       <div class="section-heading">
         <div>
-          <h2 id="writing">A place for the changelogs</h2>
+          <h2 id="writing">The changelogs</h2>
           <p class="subtitle section-intro">Occasional writing</p>
         </div>
         <a href="/writing/">All posts</a>

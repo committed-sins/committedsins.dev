@@ -4,6 +4,7 @@ const existingIds: Record<string, string> = {
   "obsidian-community-plugins": "obsidian-plugins",
   minecraft: "realmglass",
   sites: "elseif-codes",
+  "path-notes": "file-tools",
 };
 
 type Link = { name: string; href: string };
@@ -13,11 +14,16 @@ export type ProfileProject = {
   id: string;
   title: string;
   description: string;
+  category?: string;
+  status: string;
   groups: ProjectGroup[];
   links: Link[];
 };
 
-const communityIds = new Set(["revision-marks", "track-record", "issue-bridge"]);
+// Older versions of the profile listed these plugins as GitHub releases.
+const legacyCommunityIds = new Set(["revision-marks", "track-record", "issue-bridge"]);
+const communityDirectory = "Community directory";
+const categoryLine = /^\*\*Category:\*\* +(.+)$/;
 const tableHeader = /^\|\s*(?:Project|Plugin)\s*\|\s*What it does\s*\|\s*Status\s*\|$/;
 const markdownLink = /^\[([^\]]+)\]\((https:\/\/[^\s()<>]+)\)$/;
 
@@ -47,15 +53,17 @@ function parseRows(lines: string[], title: string)
 
 function groupObsidianPlugins(rows: ProjectRow[])
 {
-  const community: ProjectGroup = { title: "Community directory", rows: [] };
+  const community: ProjectGroup = { title: communityDirectory, rows: [] };
   const releases: ProjectGroup = { title: "GitHub releases", rows: [] };
   const development: ProjectGroup = { title: "In development", rows: [] };
   const design: ProjectGroup = { title: "Design stage", rows: [] };
 
   for (const row of rows) {
-    const id = row.href.split("/").at(-1)?.replace(/^obsidian-plugin-/, "");
-    if (row.statusLink?.name === "GitHub release" && row.statusLink.href === `${row.href}/releases/latest`) {
-      if (id && communityIds.has(id)) {
+    if (row.statusLink?.name === "Published" && /^https:\/\/obsidian\.md\/plugins\?id=[\w-]+$/.test(row.statusLink.href)) {
+      community.rows.push({ ...row, href: row.statusLink.href });
+    } else if (row.statusLink?.name === "GitHub release" && row.statusLink.href === `${row.href}/releases/latest`) {
+      const id = row.href.split("/").at(-1)?.replace(/^obsidian-plugin-/, "");
+      if (id && legacyCommunityIds.has(id)) {
         community.rows.push({ ...row, href: `https://obsidian.md/plugins?id=${id}` });
       } else {
         releases.rows.push({ ...row, href: row.statusLink.href });
@@ -93,7 +101,8 @@ function parseProfile(readme: string)
     }
 
     const intro = lines.slice(0, header).map((line) => line.trim());
-    const description = intro.find((line) => line && !/^[\[>#]/.test(line)) ?? "";
+    const category = intro.find((line) => categoryLine.test(line))?.match(categoryLine)?.[1];
+    const description = intro.find((line) => line && !/^[\[>#]/.test(line) && !categoryLine.test(line)) ?? "";
     const links = intro.flatMap((line) =>
     {
       const link = line.match(markdownLink);
@@ -101,7 +110,11 @@ function parseProfile(readme: string)
     });
     const entries = parseRows(rows, title);
     const groups = id === "obsidian-plugins" ? groupObsidianPlugins(entries) : [{ rows: entries }];
-    projects.push({ id, title, description, groups, links });
+    const publishedCount = groups.find((group) => group.title === communityDirectory)?.rows.length;
+    const status = publishedCount
+      ? `${publishedCount} published in the Community directory`
+      : Array.from(new Set(entries.map((entry) => entry.statusLink?.name ?? entry.status))).join(" · ");
+    projects.push({ id, title, description, category, status, groups, links });
     ids.add(id);
   }
 

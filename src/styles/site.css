@@ -2,13 +2,13 @@
   color-scheme: light;
   font-family: Arial, Helvetica, sans-serif;
   color: #28221f;
-  background: #faf7f3;
+  background: var(--paper);
   --ink: #1b1717;
-  --paper: #faf7f3;
+  --paper: #f8efd8;
   --copper: #e1a17c;
   --muted: #655851;
-  --rule: #d5c6bd;
-  --wash: #f0e7e0;
+  --rule: #d7c5a4;
+  --wash: #efe1c4;
   --display: Georgia, "Times New Roman", serif;
   --mono: "Cascadia Mono", "Courier New", monospace;
 }
@@ -20,6 +20,9 @@ a { color: inherit; text-underline-offset: 0.24em; }
 a:hover { text-decoration-thickness: 2px; }
 a:focus-visible { outline: 2px solid currentColor; outline-offset: 5px; }
 h1, h2, p { margin: 0; }
+h2, h3 { font-family: var(--mono); font-weight: 400; line-height: 1.25; }
+h2 { font-size: clamp(1.35rem, 2.6vw, 1.9rem); }
+h3 { font-size: clamp(1.1rem, 2vw, 1.4rem); }
 .shell { width: min(100% - 4rem, 70rem); margin-inline: auto; }
 .skip { position: absolute; top: 0.75rem; left: 1rem; z-index: 1; padding: 0.5rem; background: var(--copper); color: var(--ink); transform: translateY(-200%); }
 .skip:focus { transform: none; }
@@ -80,7 +83,7 @@ nav a:hover, nav a[aria-current] { color: var(--copper); text-decoration: underl
 .page-banner h1 { font-size: clamp(2.8rem, 6.5vw, 5.55rem); }
 .page-banner .back-link { display: inline-block; margin-bottom: 1.25rem; }
 .page-banner .entry-tag { margin-bottom: 0.55rem; color: var(--copper); }
-.subtitle, .prose :is(h2, h3) { color: var(--muted); font: 400 clamp(0.9rem, 1.65vw, 1.08rem)/1.45 var(--mono); }
+.subtitle { color: var(--muted); font: 400 clamp(0.9rem, 1.65vw, 1.08rem)/1.45 var(--mono); }
 .hero-wrap .subtitle { max-width: 38rem; margin-top: 1.2rem; color: #f1b999; }
 .hero-art {
   width: 100%;
@@ -90,9 +93,9 @@ nav a:hover, nav a[aria-current] { color: var(--copper); text-decoration: underl
 
 .section { padding-block: clamp(2.4rem, 6vw, 4.4rem); }
 .section-followup { padding-top: 0; }
+.home-intro { padding-block: clamp(1.75rem, 4vw, 3rem); }
 .section-heading { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.7rem; }
 .section-intro { margin-top: 0.65rem; }
-.section-heading h2 { font: 400 clamp(1.95rem, 3.5vw, 3rem)/1.05 var(--display); letter-spacing: -0.045em; }
 .entry-list { margin: 0; padding: 0; list-style: none; border-bottom: 1px solid var(--rule); }
 .entry { display: grid; grid-template-columns: minmax(7rem, 0.55fr) minmax(0, 1.15fr) minmax(0, 1.4fr); align-items: baseline; gap: 1rem; padding: 1.35rem 0.5rem; border-top: 1px solid var(--rule); text-decoration: none; }
 .entry:hover { background: var(--wash); }
@@ -100,6 +103,8 @@ nav a:hover, nav a[aria-current] { color: var(--copper); text-decoration: underl
 .entry-tag { color: var(--muted); font: 0.875rem/1.5 var(--mono); }
 .entry-title { font-size: clamp(1.2rem, 2.3vw, 1.66rem); font-weight: 700; letter-spacing: -0.035em; }
 .entry-description { color: var(--muted); line-height: 1.55; }
+.entry-summary { display: grid; justify-items: start; gap: 0.45rem; }
+.entry-status { padding: 0.2rem 0.45rem; color: var(--muted); background: var(--wash); font: 0.8rem/1.45 var(--mono); }
 
 .about-banner .subtitle { max-width: 48rem; }
 .about-layout {
@@ -134,7 +139,7 @@ nav a:hover, nav a[aria-current] { color: var(--copper); text-decoration: underl
 .prose img { display: block; max-width: 100%; height: auto; }
 .prose pre { overflow: auto; padding: 1rem; background: var(--wash); }
 .company-prose { margin-top: 1.7rem; }
-.prose :is(h2, h3) { margin-block: 1.5em 0.45em; }
+.prose :is(h2, h3) { margin-block: 1.75rem 0.6rem; }
 .project-status { max-width: 65ch; margin-top: 2rem; padding-top: 0.9rem; border-top: 1px solid var(--rule); color: var(--muted); }
 .project-row-status { display: block; color: var(--muted); }
 .empty-state { border-top: 1px solid var(--rule); padding-top: 1.35rem; color: var(--muted); }
@@ -164,7 +169,7 @@ nav a:hover, nav a[aria-current] { color: var(--copper); text-decoration: underl
   .footer-inner { align-items: flex-start; flex-direction: column; gap: 0.75rem; padding-block: 1.1rem; }
 }
 
-@media (max-width: 23rem) {
+@media (max-width: 28rem) {
   .header-inner nav a { padding-block: 0.45rem; }
   .header-inner nav a:first-child { flex-basis: 100%; text-align: right; }
 }

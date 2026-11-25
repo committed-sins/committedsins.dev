@@ -15,7 +15,10 @@ const { projects } = Astro.props;
       <a class="entry" href={`/projects/${id}/`}>
         <span class="entry-tag">{data.category}</span>
         <span class="entry-title">{data.title}</span>
-        <span class="entry-description">{data.description}</span>
+        <span class="entry-summary">
+          <span class="entry-description">{data.description}</span>
+          {data.status && <span class="entry-status">{data.status}</span>}
+        </span>
       </a>
     </li>
   ))}

@@ -1,7 +1,7 @@
 ---
 title: elseif.codes
 description: A project about digital fundamentals.
-category: Web
+category: Websites
 status: Concept
 order: 4
 profile: true
