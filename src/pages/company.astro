@@ -1,0 +1,18 @@
+---
+import { getEntry, render } from "astro:content";
+import CompanyLink from "../components/CompanyLink.astro";
+import PageBanner from "../components/PageBanner.astro";
+import SiteLayout from "../layouts/SiteLayout.astro";
+
+const company = await getEntry("company", "aureka");
+const { Content } = await render(company);
+const { title, description, website } = company.data;
+---
+
+<SiteLayout title="Company" description={`${title}. ${description}`}>
+  <PageBanner title="Company" description={description} />
+  <div class="shell section">
+    <CompanyLink name={title} href={website} />
+    <div class="prose company-prose"><Content /></div>
+  </div>
+</SiteLayout>

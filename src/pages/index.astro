@@ -1,13 +1,15 @@
 ---
 import { Image } from "astro:assets";
-import { getCollection } from "astro:content";
+import { getCollection, getEntry } from "astro:content";
 import copperMonogram from "../assets/brand/committed-sins-copper.png";
 import ArticleList from "../components/ArticleList.astro";
+import CompanyLink from "../components/CompanyLink.astro";
 import ProjectList from "../components/ProjectList.astro";
 import SiteLayout from "../layouts/SiteLayout.astro";
+import { getSiteProjects } from "../lib/site-projects";
 
-const projects = (await getCollection("projects"))
-  .sort((first, second) => first.data.order - second.data.order);
+const projects = await getSiteProjects();
+const { data: company } = await getEntry("company", "aureka");
 const articles = (await getCollection("writing", ({ data }) => import.meta.env.DEV || !data.draft))
   .sort((first, second) => second.data.published.getTime() - first.data.published.getTime());
 ---
@@ -17,8 +19,7 @@ const articles = (await getCollection("writing", ({ data }) => import.meta.env.D
     <div class="shell hero home-hero">
       <div class="hero-copy">
         <h1>Committed<br /> Sins</h1>
-        <p class="tagline">changelogs nobody asked for</p>
-        <p class="hero-subtitle">Servers, websites, and other inconveniences.</p>
+        <p class="subtitle">Servers, websites, and other inconveniences.</p>
       </div>
       <div class="hero-art" aria-hidden="true">
         <Image
@@ -33,15 +34,30 @@ const articles = (await getCollection("writing", ({ data }) => import.meta.env.D
   </header>
   <section class="shell section" aria-labelledby="projects">
     <div class="section-heading">
-      <h2 id="projects">Projects</h2>
-      <a href="/projects/">All projects</a>
+      <div>
+        <h2 id="projects">Projects</h2>
+        <p class="subtitle section-intro">Most of these started with something I wanted to use myself.</p>
+      </div>
+      <a href="/projects/">Project overview</a>
     </div>
-    <ProjectList projects={projects.slice(0, 3)} />
+    <ProjectList projects={projects} />
+  </section>
+  <section class="shell section section-followup" aria-labelledby="company">
+    <div class="section-heading">
+      <div>
+        <h2 id="company">Company</h2>
+        <p class="subtitle section-intro">{company.description}</p>
+      </div>
+    </div>
+    <CompanyLink name={company.title} href="/company/" />
   </section>
   {articles.length > 0 && (
-    <section class="shell section home-writing" aria-labelledby="writing">
+    <section class="shell section section-followup" aria-labelledby="writing">
       <div class="section-heading">
-        <h2 id="writing">A place for the changelogs</h2>
+        <div>
+          <h2 id="writing">A place for the changelogs</h2>
+          <p class="subtitle section-intro">Occasional writing</p>
+        </div>
         <a href="/writing/">All posts</a>
       </div>
       <ArticleList articles={articles.slice(0, 2)} />

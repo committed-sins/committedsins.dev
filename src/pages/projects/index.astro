@@ -1,15 +1,14 @@
 ---
-import { getCollection } from "astro:content";
 import PageBanner from "../../components/PageBanner.astro";
 import ProjectList from "../../components/ProjectList.astro";
 import SiteLayout from "../../layouts/SiteLayout.astro";
+import { getSiteProjects } from "../../lib/site-projects";
 
-const projects = (await getCollection("projects"))
-  .sort((first, second) => first.data.order - second.data.order);
+const projects = await getSiteProjects();
 ---
 
-<SiteLayout title="Projects" description="Aureka Systems e.U., Obsidian plugins, Realmglass, and elseif.codes.">
-  <PageBanner title="Projects" />
+<SiteLayout title="Projects" description="The software, sites, and tools I build under Committed Sins.">
+  <PageBanner title="Projects" description="The things I’m building and where each one stands." />
   <div class="shell section">
     <ProjectList projects={projects} />
   </div>

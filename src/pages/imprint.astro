@@ -11,6 +11,8 @@ import SiteLayout from "../layouts/SiteLayout.astro";
       <dd>Michael J. Stallinger</dd>
       <dt>Place of residence</dt>
       <dd>Bad Hall, Austria</dd>
+      <dt id="contact">Email</dt>
+      <dd><a href="mailto:mj@committedsins.dev">mj@committedsins.dev</a></dd>
       <dt>Editorial focus</dt>
       <dd>Personal projects and occasional writing about software and infrastructure.</dd>
     </dl>
@@ -26,5 +28,5 @@ import SiteLayout from "../layouts/SiteLayout.astro";
     line-height: 1.5;
   }
   dt { font-weight: 700; }
-  dd { margin: 0; color: var(--muted); }
+  dd { margin: 0; color: var(--muted); overflow-wrap: anywhere; }
 </style>

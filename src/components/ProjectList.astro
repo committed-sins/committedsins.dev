@@ -1,9 +1,9 @@
 ---
-import type { CollectionEntry } from "astro:content";
+import type { getSiteProjects } from "../lib/site-projects";
 
 interface Props
 {
-  projects: CollectionEntry<"projects">[];
+  projects: Awaited<ReturnType<typeof getSiteProjects>>;
 }
 
 const { projects } = Astro.props;

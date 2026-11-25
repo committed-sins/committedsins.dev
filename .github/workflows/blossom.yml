@@ -33,6 +33,7 @@ jobs:
           pnpm install --frozen-lockfile
           pnpm build
           test -s dist/index.html
+          test -s dist/about/index.html
           test -s dist/imprint/index.html
           tar -C dist -czf site.tar.gz .
           sha256sum site.tar.gz | cut -d ' ' -f 1 > site.sha256

@@ -9,7 +9,7 @@ const articles = (await getCollection("writing", ({ data }) => import.meta.env.D
 ---
 
 <SiteLayout title="A place for the changelogs" description="Occasional articles by Michael J. Stallinger.">
-  <PageBanner title="A place for the changelogs" />
+  <PageBanner title="A place for the changelogs" description="Occasional writing" />
   <div class="shell section">
     {articles.length > 0 ? <ArticleList articles={articles} /> : <p class="empty-state">No articles yet.</p>}
   </div>

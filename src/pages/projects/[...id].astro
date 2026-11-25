@@ -1,17 +1,19 @@
 ---
-import { getCollection, render } from "astro:content";
+import { render } from "astro:content";
 import PageBanner from "../../components/PageBanner.astro";
+import ProfileProjectList from "../../components/ProfileProjectList.astro";
 import SiteLayout from "../../layouts/SiteLayout.astro";
+import { getSiteProjects } from "../../lib/site-projects";
 
 export async function getStaticPaths()
 {
-  const projects = await getCollection("projects");
+  const projects = await getSiteProjects();
   return projects.map((project) => ({ params: { id: project.id }, props: { project } }));
 }
 
 const { project } = Astro.props;
-const { title, description, category } = project.data;
-const { Content } = await render(project);
+const { title, description, category, status } = project.data;
+const Content = project.local && (await render(project.local)).Content;
 ---
 
 <SiteLayout title={title} description={description}>
@@ -21,7 +23,11 @@ const { Content } = await render(project);
       <p class="entry-tag">{category}</p>
     </PageBanner>
     <div class="shell section">
-      <div class="prose"><Content /></div>
+      <div class="prose">
+        {Content && <Content />}
+        {project.profile && <ProfileProjectList project={project.profile} />}
+      </div>
+      {status && !project.profile && <footer class="project-status"><strong>Status</strong> · {status}</footer>}
     </div>
   </article>
 </SiteLayout>
