@@ -1,11 +1,19 @@
 [Unit]
 Description=Refresh the Committed Sins project directory
-After=network-online.target
+After=docker.service network-online.target
+Requires=docker.service
 Wants=network-online.target
 
 [Service]
 Type=oneshot
-User=mjs
 WorkingDirectory=/srv/sites/committedsins.dev
-UMask=0022
-ExecStart=node deploy/blossom/refresh-projects.mjs .blossom/data
+TimeoutStartSec=3min
+ExecStartPre=/usr/sbin/runuser -u mjs -- /usr/bin/install -d -m 0755 .blossom/data
+ExecStart=:/bin/sh -ec 'exec /usr/bin/docker run --rm --read-only --cap-drop=ALL --security-opt=no-new-privileges \
+    --user "$(/usr/bin/id -u mjs):$(/usr/bin/id -g mjs)" \
+    --mount type=bind,source=/srv/sites/committedsins.dev/package.json,target=/app/package.json,readonly \
+    --mount type=bind,source=/srv/sites/committedsins.dev/deploy/blossom,target=/app/deploy/blossom,readonly \
+    --mount type=bind,source=/srv/sites/committedsins.dev/src/lib,target=/app/src/lib,readonly \
+    --mount type=bind,source=/srv/sites/committedsins.dev/.blossom/data,target=/data \
+    node:24-bookworm-slim@sha256:873f586f3794f52281bd039bf02c048a0be08fde619338f9941bad1eb6b34530 \
+    node /app/deploy/blossom/refresh-projects.mjs /data'

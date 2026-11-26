@@ -26,7 +26,11 @@
 	handle /project-directory-template* {
 		respond 404
 	}
-	handle / {
+	@projectHome {
+		path /
+		file /project-directory-template/index.html
+	}
+	handle @projectHome {
 		templates {
 			root {$COMMITTEDSINS_STATE_ROOT:/srv}
 			mime text/html
@@ -34,7 +38,10 @@
 		header Cache-Control "no-cache"
 		file_server
 	}
-	@projectArea path_regexp ^/projects/[a-z0-9]+(-[a-z0-9]+)*/?$
+	@projectArea {
+		path_regexp ^/projects/[a-z0-9]+(-[a-z0-9]+)*/?$
+		file /project-directory-template/index.html
+	}
 	handle @projectArea {
 		rewrite * /project-directory-template/index.html
 		templates {
