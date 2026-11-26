@@ -1,7 +1,6 @@
 {{ $corporateListed := false }}
 {{ if fileExists "data/company-projects.json" }}
   {{ range (readFile "data/company-projects.json" | mustFromJson) }}
-    {{ $topic := .topic }}
     <section class="profile-project-list" aria-labelledby="company-projects-{{ .id | html }}">
       <h2 id="company-projects-{{ .id | html }}">{{ .title | html }}</h2>
       {{ if .groups }}
@@ -10,21 +9,20 @@
             {{ range .rows }}
               {{ $isCorporate := eq .repository $corporateRepository }}
               <li class="entry profile-entry">
-                <span class="entry-tag">
-                  {{ if .release }}<a href="{{ .release.href | html }}">{{ .release.name | html }}</a>
-                  {{ else }}<code>#{{ $topic | html }}</code>{{ end }}
-                </span>
                 {{ if $isCorporate }}
                   {{ $corporateListed = true }}
                   <a class="entry-title" href="{{ $corporateWebsite | html }}">{{ .name | html }}</a>
                 {{ else }}
                   <a class="entry-title" href="{{ .repository | html }}">{{ .name | html }}</a>
                 {{ end }}
-                {{ if or .description $isCorporate }}
+                {{ if or .description .release $isCorporate }}
                   <span class="entry-summary">
                     {{ with .description }}<span class="entry-description">{{ . | html }}</span>{{ end }}
                     {{ if $isCorporate }}
                       <a class="entry-tag" href="{{ .repository | html }}" aria-label="{{ .name | html }} on GitHub">GitHub</a>
+                    {{ end }}
+                    {{ with .release }}
+                      <span class="entry-status"><a href="{{ .href | html }}">{{ .name | html }}</a></span>
                     {{ end }}
                   </span>
                 {{ end }}
