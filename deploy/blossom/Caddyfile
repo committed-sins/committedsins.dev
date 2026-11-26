@@ -38,6 +38,19 @@
 		header Cache-Control "no-cache"
 		file_server
 	}
+	@company {
+		path /company /company/
+		file /project-directory-template/company/index.html
+	}
+	handle @company {
+		rewrite * /project-directory-template/company/index.html
+		templates {
+			root {$COMMITTEDSINS_STATE_ROOT:/srv}
+			mime text/html
+		}
+		header Cache-Control "no-cache"
+		file_server
+	}
 	@projectArea {
 		path_regexp ^/projects/[a-z0-9]+(-[a-z0-9]+)*/?$
 		file /project-directory-template/index.html

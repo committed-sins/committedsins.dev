@@ -1,5 +1,3 @@
-const profileUrl = "https://raw.githubusercontent.com/committed-sins/.github/main/profile/README.md";
-
 const existingIds: Record<string, string> = {
   "obsidian-community-plugins": "obsidian-plugins",
   minecraft: "realmglass",
@@ -34,7 +32,7 @@ const categoryLine = /^\*\*Category:\*\* +(.+)$/;
 const tableHeader = /^\|\s*(?:Project|Plugin)\s*\|\s*What it does\s*\|\s*Status\s*\|$/;
 const markdownLink = /^\[([^\]]+)\]\((https:\/\/[^\s()<>]+)\)$/;
 
-function parseRows(lines: string[], title: string)
+function parseRows(lines: string[], title: string, owner: string)
 {
   return lines.map((line) =>
   {
@@ -42,7 +40,8 @@ function parseRows(lines: string[], title: string)
     const [, project, description, status] = cells.map((cell) => cell.trim());
     const link = project?.match(markdownLink);
     if (cells.length !== 5 || cells[0].trim() || cells[4].trim() || !link
-      || !/^https:\/\/github\.com\/committed-sins\/[\w.-]+$/.test(link[2]) || !description || !status) {
+      || !/^https:\/\/github\.com\/[\w.-]+\/[\w.-]+$/.test(link[2])
+      || !link[2].startsWith(`https://github.com/${owner}/`) || !description || !status) {
       throw new Error(`Invalid row in the ${title} project table: ${line}`);
     }
 
@@ -117,7 +116,7 @@ export function withProjectRows(project: ProfileProject, rows: ProjectRow[]): Pr
   return { ...project, status, groups: rows.length ? [{ rows }] : [] };
 }
 
-export function parseProfile(readme: string)
+export function parseProfile(readme: string, owner = "committed-sins")
 {
   const projects: ProfileProject[] = [];
   const ids = new Set<string>();
@@ -153,7 +152,7 @@ export function parseProfile(readme: string)
     const rows = end === -1 ? body : body.slice(0, end);
     if (!id || ids.has(id) || !tableHeader.test(lines[header].trim()) || !separator
       || !/^\|(?:\s*:?-+:?\s*\|){3}$/.test(separator.trim()) || rows.length === 0) {
-      throw new Error(`Invalid project table in the Committed Sins profile: ${title}`);
+      throw new Error(`Invalid project table in the ${owner} profile: ${title}`);
     }
 
     const intro = lines.slice(0, header).map((line) => line.trim());
@@ -164,13 +163,13 @@ export function parseProfile(readme: string)
       const link = line.match(markdownLink);
       return link ? [{ name: link[1], href: link[2] }] : [];
     });
-    const parsed = parseRows(rows, title);
+    const parsed = parseRows(rows, title, owner);
     const entries = id === "obsidian-plugins" ? normalizeObsidianPlugins(parsed) : normalizeProjectRows(parsed);
     projects.push(withProjectRows({ id, title, description, category, status: "", groups: [], links }, entries));
     ids.add(id);
   }
 
-  if (!areas.size) throw new Error("The Committed Sins profile has no Project areas table.");
+  if (!areas.size) throw new Error(`The ${owner} profile has no Project areas table.`);
   const byId = new Map(projects.map((project) => [project.id, project]));
   return Array.from(areas, ([id, area]) => ({
     description: "", status: "", groups: [], links: [],
@@ -178,12 +177,13 @@ export function parseProfile(readme: string)
   }));
 }
 
-export async function loadProfileProjects()
+export async function loadProfileProjects(owner = "committed-sins")
 {
+  const profileUrl = `https://raw.githubusercontent.com/${owner}/.github/main/profile/README.md`;
   const response = await fetch(profileUrl, { signal: AbortSignal.timeout(8_000) });
   if (!response.ok) {
-    throw new Error(`Could not fetch the Committed Sins profile (HTTP ${response.status}).`);
+    throw new Error(`Could not fetch the ${owner} profile (HTTP ${response.status}).`);
   }
 
-  return parseProfile(await response.text());
+  return parseProfile(await response.text(), owner);
 }

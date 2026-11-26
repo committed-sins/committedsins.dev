@@ -1,0 +1,21 @@
+{{ if fileExists "data/company-projects.json" }}
+  {{ range (readFile "data/company-projects.json" | mustFromJson) }}
+    <section class="profile-project-list" aria-labelledby="company-projects-{{ .id | html }}">
+      <h2 id="company-projects-{{ .id | html }}">{{ .title | html }}</h2>
+      {{ if .groups }}
+        <ul class="entry-list">
+          {{ range .groups }}
+            {{ range .rows }}
+              <li class="entry profile-entry">
+                <a class="entry-title" href="{{ .repository | html }}">{{ .name | html }}</a>
+                {{ with .description }}<span class="entry-description">{{ . | html }}</span>{{ end }}
+              </li>
+            {{ end }}
+          {{ end }}
+        </ul>
+      {{ else }}
+        <p class="empty-state">No public repositories have this topic yet.</p>
+      {{ end }}
+    </section>
+  {{ end }}
+{{ end }}

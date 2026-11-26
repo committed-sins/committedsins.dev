@@ -1,0 +1,8 @@
+---
+import CompanyPage from "../../components/CompanyPage.astro";
+import companyProjects from "../../templates/company-projects.html?raw";
+---
+
+<CompanyPage>
+  <Fragment set:html={companyProjects} />
+</CompanyPage>

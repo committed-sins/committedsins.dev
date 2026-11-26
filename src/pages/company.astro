@@ -1,20 +1,5 @@
 ---
-import { getEntry, render } from "astro:content";
-import CompanyLink from "../components/CompanyLink.astro";
-import PageBanner from "../components/PageBanner.astro";
-import SiteLayout from "../layouts/SiteLayout.astro";
-
-const company = await getEntry("company", "aureka");
-const { Content } = await render(company);
-const { title, description, website } = company.data;
+import CompanyPage from "../components/CompanyPage.astro";
 ---
 
-<SiteLayout title={title} description={`${title} ${description}`}>
-  <PageBanner title={title} description={description}>
-    <a class="back-link" href="/#company">Company</a>
-  </PageBanner>
-  <div class="shell section">
-    <CompanyLink name={new URL(website).hostname} href={website} />
-    <div class="prose company-prose"><Content /></div>
-  </div>
-</SiteLayout>
+<CompanyPage />

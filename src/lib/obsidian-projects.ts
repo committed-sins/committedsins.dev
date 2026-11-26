@@ -3,6 +3,7 @@ import { withProjectRows } from "./github-projects.ts";
 
 type Repository = {
   name: string;
+  full_name: string;
   html_url: string;
   description: string | null;
   default_branch: string;
@@ -30,11 +31,11 @@ async function fetchList<T>(url: string): Promise<T[]>
   return items;
 }
 
-async function listRepositories()
+async function listRepositories(owner: string)
 {
   const repositories: Repository[] = [];
   for (let page = 1; ; page++) {
-    const batch = await fetchList<Repository>(`${githubApi}/orgs/committed-sins/repos?type=public&per_page=100&page=${page}`);
+    const batch = await fetchList<Repository>(`${githubApi}/orgs/${owner}/repos?type=public&per_page=100&page=${page}`);
     repositories.push(...batch.filter((repo) => !repo.private));
     if (batch.length < 100) return repositories;
   }
@@ -43,7 +44,7 @@ async function listRepositories()
 async function readSummary(repo: Repository)
 {
   const branch = repo.default_branch.split("/").map(encodeURIComponent).join("/");
-  const url = `https://raw.githubusercontent.com/committed-sins/${repo.name}/refs/heads/${branch}/README.md`;
+  const url = `https://raw.githubusercontent.com/${repo.full_name}/refs/heads/${branch}/README.md`;
   try {
     const response = await fetch(url, { signal: AbortSignal.timeout(5_000) });
     if (!response.ok) return undefined;
@@ -67,20 +68,20 @@ async function readLatestRelease(repo: Repository)
 {
   const pageSize = repo.html_url === websiteRepository ? 100 : 1;
   for (let page = 1; ; page++) {
-    const url = `${githubApi}/repos/committed-sins/${repo.name}/releases?per_page=${pageSize}&page=${page}`;
+    const url = `${githubApi}/repos/${repo.full_name}/releases?per_page=${pageSize}&page=${page}`;
     const releases = await fetchList<Release>(url);
     const release = releases.find(({ draft, tag_name }) => !draft && !isBlossomRelease(repo.html_url, tag_name));
     if (release || releases.length < pageSize) return release;
   }
 }
 
-export async function loadTopicProjects(projects: ProfileProject[]): Promise<ProfileProject[]>
+export async function loadTopicProjects(projects: ProfileProject[], owner = "committed-sins"): Promise<ProfileProject[]>
 {
   const topics = new Set(projects.map(({ topic }) => topic).filter(Boolean));
   if (!topics.size) return projects;
 
   const [allRepositories, directory] = await Promise.all([
-    listRepositories(),
+    listRepositories(owner),
     topics.has("obsidian-plugin") ? fetchList<CommunityPlugin>(directoryUrl) : [],
   ]);
   const repositories = allRepositories.filter(({ topics: repoTopics }) => repoTopics?.some((topic) => topics.has(topic)));
@@ -105,8 +106,7 @@ export async function loadTopicProjects(projects: ProfileProject[]): Promise<Pro
     {
       const saved = previousByRepo.get(repo.html_url);
       const previous = saved?.row;
-      const fullName = `committed-sins/${repo.name}`;
-      const plugin = isObsidian ? listedByRepo.get(fullName.toLowerCase()) : undefined;
+      const plugin = isObsidian ? listedByRepo.get(repo.full_name.toLowerCase()) : undefined;
       const details = metadata.get(repo.name);
       const release = details?.release;
       const directoryLink = plugin ? { name: "Published", href: `https://obsidian.md/plugins?id=${plugin.id}` } : undefined;

@@ -22,7 +22,7 @@ node deploy/blossom/refresh-projects.mjs (Join-Path $env:COMMITTEDSINS_STATE_ROO
 caddy run --config deploy/blossom/Caddyfile --adapter caddyfile
 ```
 
-Open `http://127.0.0.1:4323/`. Re-run the snapshot command to pick up GitHub changes. Set `PROFILE_README_PATH` before that command to preview edits from a local profile README.
+Open `http://127.0.0.1:4323/`. Re-run the snapshot command to pick up GitHub changes. Set `PROFILE_README_PATH` or `COMPANY_PROFILE_README_PATH` before that command to preview edits from a local personal or company profile README.
 
 ## Add content
 
@@ -39,4 +39,6 @@ The **Project areas** table in the [Committed Sins GitHub profile README](https:
 
 Add the configured topic to a public repository in the organization to list it in that area. The site uses the repo description or a plain-text paragraph under an optional `## Summary` heading in the repo README. Each area has a single list ordered by **Published**, **Preview**, and **Development**. The version links directly to its GitHub release. An Obsidian directory listing, a live website link, or the latest release being stable marks a project as **Published**. For Obsidian plugins, the directory listing determines publication. An available release without publication is a **Preview**. A project without either is in **Development**. Blossom deployment releases are excluded from the website's release history on the project page.
 
-The Blossom timer updates project areas, repositories, and releases hourly. Caddy reads the current snapshot when serving the homepage and project pages. If GitHub is unavailable, the last successful snapshot stays in use.
+The [Aureka Systems GitHub profile README](https://github.com/aurekasystems/.github/blob/main/profile/README.md) defines the areas on `/company/` in the same way, using public repositories from the Aureka Systems organization.
+
+The Blossom timer updates both directories hourly. Caddy reads the snapshots when serving the homepage, project pages, and company page. If a refresh fails, its last successful snapshot stays in use.
