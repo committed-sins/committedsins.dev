@@ -1,5 +1,5 @@
 {{ if fileExists $snapshot }}
-  {{ $projects := readFile $snapshot | mustFromJson }}
+  {{ with $projects := readFile $snapshot | mustFromJson }}
   <ul class="entry-list">
     {{ range $projects }}
       <li class="entry project-card">
@@ -18,6 +18,9 @@
       </li>
     {{ end }}
   </ul>
+  {{ else }}
+    <p class="empty-state">No projects yet.</p>
+  {{ end }}
 {{ else }}
   <p class="empty-state">The project directory is temporarily unavailable.</p>
 {{ end }}

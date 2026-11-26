@@ -120,7 +120,6 @@ nav a:hover, nav a[aria-current] { color: var(--copper); text-decoration: underl
 .entry-summary { display: grid; justify-items: start; gap: 0.45rem; }
 .entry-status { padding: 0.2rem 0.45rem; color: var(--muted); background: var(--wash); font: 0.8rem/1.45 var(--mono); }
 .profile-project-list { margin-top: 1.5rem; }
-.project-group-title { margin-block: 1.75rem 0.65rem; }
 .project-source-link { margin-top: 1rem; }
 .project-source-links { display: flex; flex-wrap: wrap; gap: 0.5rem 1.4rem; margin: 1rem 0 0; padding: 0; list-style: none; }
 
@@ -160,7 +159,7 @@ nav a:hover, nav a[aria-current] { color: var(--copper); text-decoration: underl
 .prose p + a { display: inline-block; margin-top: 1em; }
 .prose img { display: block; max-width: 100%; height: auto; }
 .prose pre { overflow: auto; padding: 1rem; background: var(--wash); }
-.company-projects { margin-top: clamp(2rem, 5vw, 3rem); }
+.projects-after-intro { margin-top: clamp(2rem, 5vw, 3rem); }
 .project-publication { margin-top: 1rem; }
 .project-entry-meta { display: flex; align-items: center; flex-wrap: wrap; gap: 0.35rem 0.75rem; }
 .project-repo-link { display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.875rem; }

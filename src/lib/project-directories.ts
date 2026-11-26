@@ -8,16 +8,19 @@ export const projectDirectories = {
     back: "/company/#projects", profileEnv: "COMPANY_PROFILE_README_PATH",
   },
   xdmz: {
-    owner: "xdmz-eu", filename: "xdmz-projects.json", path: "/other-projects/xdmz/",
-    back: "/#other-projects", profileEnv: "XDMZ_PROFILE_README_PATH", title: "xDMZ",
+    owner: "xdmz-eu", filename: "xdmz-projects.json", path: "/other-projects/xdmz/projects/",
+    home: "/other-projects/xdmz/", back: "/other-projects/xdmz/#projects",
+    profileEnv: "XDMZ_PROFILE_README_PATH", title: "xDMZ",
   },
   limis: {
-    owner: "limis-at", filename: "limis-projects.json", path: "/other-projects/limis/",
-    back: "/#other-projects", profileEnv: "LIMIS_PROFILE_README_PATH", title: "LiMiS",
+    owner: "limis-at", filename: "limis-projects.json", path: "/other-projects/limis/projects/",
+    home: "/other-projects/limis/", back: "/other-projects/limis/#projects",
+    profileEnv: "LIMIS_PROFILE_README_PATH", title: "LiMiS",
   },
   staged: {
-    owner: "staged", filename: "staged-projects.json", path: "/other-projects/staged/",
-    back: "/#other-projects", profileEnv: "STAGED_PROFILE_README_PATH", title: "StaGeD",
+    owner: "staged", filename: "staged-projects.json", path: "/other-projects/staged/projects/",
+    home: "/other-projects/staged/", back: "/other-projects/staged/#projects",
+    profileEnv: "STAGED_PROFILE_README_PATH", title: "StaGeD",
   },
 } as const;
 

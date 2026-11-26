@@ -1,0 +1,19 @@
+---
+import ProjectOverview from "./ProjectOverview.astro";
+import type { projectDirectories } from "../lib/project-directories";
+
+interface Props
+{
+  directory?: keyof typeof projectDirectories;
+  afterIntro?: boolean;
+}
+
+const { directory, afterIntro = false } = Astro.props;
+---
+
+<section class:list={[{ "projects-after-intro": afterIntro }]} aria-labelledby="projects">
+  <div class="section-heading">
+    <h2 id="projects">Projects</h2>
+  </div>
+  <ProjectOverview directory={directory} />
+</section>

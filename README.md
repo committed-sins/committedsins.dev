@@ -41,7 +41,7 @@ A public repository can belong to multiple areas. Use a shared product topic for
 
 For a curated list, set the topic to `-` and add an `Entry | What it does | Status` table under the matching area heading. Entries can use a plain name or an HTTPS Markdown link. Use `-` in the status column when there is no status to display. A topic-based area can also use an `Entry` table for plain-text entries while their repositories are private or pending.
 
-The xDMZ, LiMiS, and StaGeD profile READMEs drive the directories under **Other projects**. Their configured areas appear as sections on each organization page. A `Project areas` table with no rows produces an empty directory.
+The xDMZ, LiMiS, and StaGeD profile READMEs drive the directories under **Others**. Each organization has a **Projects** overview and uses the same detail layout as the company pages under **Business**. A `Project areas` table with no rows produces an empty directory.
 
 Add the configured topic to a public repository in the organization to list it in that area. The site uses the repo description or a plain-text paragraph under an optional `## Summary` heading in the repo README. Each area has a single list ordered by **Published**, **Preview**, and **Development**. The version links directly to its GitHub release. An Obsidian directory listing, a live website link, or the latest release being stable marks a project as **Published**. For Obsidian plugins, the directory listing determines publication. An available release without publication is a **Preview**. A project without either is in **Development**. Blossom deployment releases are excluded from the website's release history on the project page.
 

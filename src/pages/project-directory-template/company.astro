@@ -1,13 +1,8 @@
 ---
 import CompanyPage from "../../components/CompanyPage.astro";
-import ProjectOverview from "../../components/ProjectOverview.astro";
+import ProjectOverviewSection from "../../components/ProjectOverviewSection.astro";
 ---
 
 <CompanyPage>
-  <section class="company-projects" aria-labelledby="projects">
-    <div class="section-heading">
-      <h2 id="projects">Projects</h2>
-    </div>
-    <ProjectOverview directory="company" />
-  </section>
+  <ProjectOverviewSection directory="company" afterIntro />
 </CompanyPage>

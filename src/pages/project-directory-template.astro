@@ -1,6 +1,7 @@
 ---
 import { getCollection, render } from "astro:content";
 import PageBanner from "../components/PageBanner.astro";
+import ProjectOverviewSection from "../components/ProjectOverviewSection.astro";
 import SiteLayout from "../layouts/SiteLayout.astro";
 import githubIcon from "../assets/about/profiles/github.svg?raw";
 import { projectDirectories } from "../lib/project-directories";
@@ -17,8 +18,12 @@ const directories = JSON.stringify(JSON.stringify(Object.values(projectDirectori
 const projectLookup = `
 {{- $path := .OriginalReq.URL.Path | trimSuffix "/" -}}
 {{- $directory := dict -}}
+{{- $isOverview := false -}}
 {{- range (mustFromJson ${directories}) -}}
-  {{- if or (and .title (eq $path (trimSuffix "/" .path))) (and (not .title) (hasPrefix .path $path)) -}}
+  {{- if and .home (eq $path (trimSuffix "/" .home)) -}}
+    {{- $directory = . -}}
+    {{- $isOverview = true -}}
+  {{- else if hasPrefix .path $path -}}
     {{- $directory = . -}}
   {{- end -}}
 {{- end -}}
@@ -26,24 +31,17 @@ const projectLookup = `
 {{- $owner := $directory.owner -}}
 {{- $isPersonal := eq $owner "${projectDirectories.personal.owner}" -}}
 {{- $snapshot := print "data/" $directory.filename -}}
-{{ if not (fileExists $snapshot) }}{{ httpError 503 }}{{ end }}
-{{- $areas := readFile $snapshot | mustFromJson -}}
-{{- $slug := trimPrefix $directory.path $path -}}
+{{- $areaPath := $directory.path -}}
+{{- $slug := trimPrefix $areaPath $path -}}
+{{- $backLink := ternary "/#other-projects" $directory.back $isOverview -}}
 {{- $project := dict -}}
-{{- if $directory.title -}}
-  {{- $project = dict "title" $directory.title "description" "" "groups" (list) "links" (list) -}}
-  {{- range $areas -}}
-    {{- if .groups -}}
-      {{- $rows := list -}}
-      {{- range .groups -}}{{- $rows = concat $rows .rows -}}{{- end -}}
-      {{- $groupTitle := ternary .title "" (gt (len $areas) 1) -}}
-      {{- $_ := set $project "groups" (append $project.groups (dict "rows" $rows "title" $groupTitle)) -}}
-    {{- end -}}
-    {{- $_ := set $project "links" (concat $project.links .links) -}}
-    {{- if not $project.description -}}{{- $_ := set $project "description" .description -}}{{- end -}}
-  {{- end -}}
+{{- if $isOverview -}}
+  {{- $project = dict "title" $directory.title "description" "" -}}
 {{- else -}}
-  {{- range $areas -}}{{- if eq .id $slug -}}{{- $project = . -}}{{- end -}}{{- end -}}
+  {{- if not (fileExists $snapshot) -}}{{ httpError 503 }}{{- end -}}
+  {{- range (readFile $snapshot | mustFromJson) -}}
+    {{- if eq .id $slug -}}{{- $project = . -}}{{- end -}}
+  {{- end -}}
 {{- end -}}
 {{- if not $project -}}{{ httpError 404 }}{{- end -}}
 `;
@@ -56,7 +54,7 @@ const canonical = `${new URL("/", Astro.site).origin}{{ $path | html }}/`;
 <SiteLayout title={title} description={description} canonical={canonical}>
   <article>
     <PageBanner title={title} description={description}>
-      <a class="back-link" href="{{ $directory.back }}" set:html={"{{ if $directory.title }}Other projects{{ else }}All projects{{ end }}"} />
+      <a class="back-link" href="{{ $backLink }}" set:html={"{{ if $isOverview }}Others{{ else }}All projects{{ end }}"} />
       <Fragment set:html={`
         {{ with $project.topic }}
           <p class="entry-tag">
@@ -80,6 +78,9 @@ const canonical = `${new URL("/", Astro.site).origin}{{ $path | html }}/`;
       `} />
     </PageBanner>
     <div class="shell section">
+      <Fragment set:html={"{{ if $isOverview }}"} />
+      <ProjectOverviewSection />
+      <Fragment set:html={"{{ else }}"} />
       {introductions.map(({ id, Content }) => (
         <>
           <Fragment set:html={`{{ if and $isPersonal (eq $slug ${JSON.stringify(id)}) }}`} />
@@ -88,6 +89,7 @@ const canonical = `${new URL("/", Astro.site).origin}{{ $path | html }}/`;
         </>
       ))}
       <Fragment set:html={projectRows.replaceAll("<!-- github-icon -->", githubIcon)} />
+      <Fragment set:html={"{{ end }}"} />
     </div>
   </article>
 </SiteLayout>

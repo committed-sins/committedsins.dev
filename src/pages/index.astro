@@ -46,7 +46,7 @@ const articles = (await getCollection("writing", ({ data }) => import.meta.env.D
   <section class="shell section section-followup" aria-labelledby="company">
     <div class="section-heading">
       <div>
-        <h2 id="company">Company</h2>
+        <h2 id="company">Business</h2>
         <p class="subtitle section-intro">{company.description}</p>
       </div>
     </div>
@@ -54,9 +54,9 @@ const articles = (await getCollection("writing", ({ data }) => import.meta.env.D
   </section>
   <section class="shell section section-followup" aria-labelledby="other-projects">
     <div class="section-heading">
-      <h2 id="other-projects">Other projects</h2>
+      <h2 id="other-projects">Others</h2>
     </div>
-    <DirectoryLinks entries={otherProjectDirectories.map(({ title, path, owner }) => ({ name: title, href: path, label: owner }))} />
+    <DirectoryLinks entries={otherProjectDirectories.map(({ title, home, owner }) => ({ name: title, href: home, label: owner }))} />
   </section>
   {articles.length > 0 && (
     <section class="shell section section-followup" aria-labelledby="writing">

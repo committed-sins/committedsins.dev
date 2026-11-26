@@ -1,15 +1,11 @@
 <div class="profile-project-list">
   {{ if $project.groups }}
     {{ range $project.groups }}
-      {{ with .title }}<h2 class="project-group-title">{{ . | html }}</h2>{{ end }}
       <ul class="entry-list">
         {{ range .rows }}
           <li class="entry profile-entry">
-            {{ if .href }}
-              <a class="entry-title" href="{{ .href | html }}"{{ if eq .href .repository }} aria-label="{{ .name | html }} on GitHub"{{ end }}>
-                {{ .name | html }}
-                {{ if eq .href .repository }}<span class="project-github-icon" aria-hidden="true"><!-- github-icon --></span>{{ end }}
-              </a>
+            {{ if and .href (ne .href .repository) }}
+              <a class="entry-title" href="{{ .href | html }}">{{ .name | html }}</a>
             {{ else }}
               <span class="entry-title">{{ .name | html }}</span>
             {{ end }}
@@ -28,7 +24,7 @@
                     {{ with .release }}&middot; <a href="{{ .href | html }}">{{ .name | html }}</a>{{ end }}
                   </span>
                 {{ end }}
-                {{ if and .repository (ne .href .repository) }}
+                {{ if .repository }}
                   <a class="project-repo-link" href="{{ .repository | html }}" aria-label="{{ .name | html }} on GitHub">
                     <span class="project-github-icon" aria-hidden="true"><!-- github-icon --></span>GitHub
                   </a>
