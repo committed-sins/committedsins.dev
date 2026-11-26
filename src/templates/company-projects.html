@@ -1,8 +1,7 @@
 {{ $corporateListed := false }}
 {{ if fileExists "data/company-projects.json" }}
   {{ range (readFile "data/company-projects.json" | mustFromJson) }}
-    <section class="profile-project-list" aria-labelledby="company-projects-{{ .id | html }}">
-      <h2 id="company-projects-{{ .id | html }}">{{ .title | html }}</h2>
+    <section class="profile-project-list" id="company-projects-{{ .id | html }}" aria-label="{{ .title | html }}">
       {{ if .groups }}
         <ul class="entry-list">
           {{ range .groups }}
