@@ -9,10 +9,12 @@ const { Content } = await render(company);
 const { title, description, website } = company.data;
 ---
 
-<SiteLayout title="Company" description={`${title}. ${description}`}>
-  <PageBanner title="Company" description={description} />
+<SiteLayout title={title} description={`${title} ${description}`}>
+  <PageBanner title={title} description={description}>
+    <a class="back-link" href="/#company">Company</a>
+  </PageBanner>
   <div class="shell section">
-    <CompanyLink name={title} href={website} />
+    <CompanyLink name={new URL(website).hostname} href={website} />
     <div class="prose company-prose"><Content /></div>
   </div>
 </SiteLayout>

@@ -1,6 +1,14 @@
+@font-face {
+  font-family: "Source Sans 3";
+  src: url("/fonts/source-sans-3/SourceSans3VF-Upright.ttf.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 200 900;
+  font-display: swap;
+}
+
 :root {
   color-scheme: light;
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: "Source Sans 3", Arial, Helvetica, sans-serif;
   color: #28221f;
   background: var(--paper);
   --ink: #1b1717;
@@ -101,7 +109,7 @@ nav a:hover, nav a[aria-current] { color: var(--copper); text-decoration: underl
 .entry:hover { background: var(--wash); }
 .entry:hover .entry-title { text-decoration: underline; }
 .entry-tag { color: var(--muted); font: 0.875rem/1.5 var(--mono); }
-.entry-title { font-size: clamp(1.2rem, 2.3vw, 1.66rem); font-weight: 700; letter-spacing: -0.035em; }
+.entry-title { font-size: clamp(1.2rem, 2.3vw, 1.66rem); font-weight: 600; line-height: 1.25; letter-spacing: -0.035em; }
 .entry-description { color: var(--muted); line-height: 1.55; }
 .entry-summary { display: grid; justify-items: start; gap: 0.45rem; }
 .entry-status { padding: 0.2rem 0.45rem; color: var(--muted); background: var(--wash); font: 0.8rem/1.45 var(--mono); }
@@ -157,7 +165,9 @@ nav a:hover, nav a[aria-current] { color: var(--copper); text-decoration: underl
   .hero-art { display: none; }
   .about-layout { grid-template-columns: 1fr; gap: 2rem; }
   .about-frame { width: min(100%, 12rem); }
-  .entry { grid-template-columns: 1fr; gap: 0.3rem; }
+  .entry { grid-template-columns: 1fr; gap: 0.35rem; padding: 1rem 0.25rem; }
+  .entry .entry-tag { font-size: 0.8rem; }
+  .entry-title { font-size: 1.125rem; line-height: 1.35; letter-spacing: -0.015em; }
 }
 
 @media (max-width: 30rem) {
@@ -167,9 +177,4 @@ nav a:hover, nav a[aria-current] { color: var(--copper); text-decoration: underl
   nav a { font-size: 0.86rem; }
   .about-work dl > div { grid-template-columns: 1fr; }
   .footer-inner { align-items: flex-start; flex-direction: column; gap: 0.75rem; padding-block: 1.1rem; }
-}
-
-@media (max-width: 28rem) {
-  .header-inner nav a { padding-block: 0.45rem; }
-  .header-inner nav a:first-child { flex-basis: 100%; text-align: right; }
 }

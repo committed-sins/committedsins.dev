@@ -14,7 +14,7 @@ pnpm dev
 ## Add content
 
 - For an article, copy `templates/article.md` into `src/content/writing/`, name the file with its URL slug, and fill out the frontmatter and body. Update the date and set `draft: false` when the article is ready. Drafts appear in the dev server and stay out of the production build. Keep private drafts outside this public repo.
-- Local project entries in `src/content/projects/` are ordered by `order`. Files with `profile: true` add site-specific copy to a matching GitHub section. Update the standalone Company page and its homepage entry in `src/content/company/aureka.md`.
+- Local project entries in `src/content/projects/` are ordered by `order`. Files with `profile: true` add site-specific copy to a matching GitHub section. Update the Aureka detail page and its homepage entry in `src/content/company/aureka.md`.
 
 `pnpm build` generates the static site in `dist/`. Use `pnpm preview` to view that output locally.
 
