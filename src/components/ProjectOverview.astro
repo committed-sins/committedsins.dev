@@ -1,17 +1,5 @@
 ---
-import { projectDirectories } from "../lib/project-directories";
 import overview from "../templates/project-overview.html?raw";
-
-interface Props
-{
-  directory?: keyof typeof projectDirectories;
-}
-
-const { directory } = Astro.props;
-const config = directory && projectDirectories[directory];
-const context = config
-  ? `{{ $snapshot := "data/${config.filename}" }}{{ $owner := "${config.owner}" }}{{ $areaPath := "${config.path}" }}`
-  : "";
 ---
 
-<Fragment set:html={context + overview} />
+<Fragment set:html={overview} />

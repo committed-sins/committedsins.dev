@@ -1,11 +1,13 @@
 ---
 import { getCollection, render } from "astro:content";
-import PageBanner from "../components/PageBanner.astro";
-import ProjectOverviewSection from "../components/ProjectOverviewSection.astro";
-import SiteLayout from "../layouts/SiteLayout.astro";
-import githubIcon from "../assets/about/profiles/github.svg?raw";
-import { projectDirectories } from "../lib/project-directories";
-import projectRows from "../templates/project-rows.html?raw";
+import PageBanner from "../../components/PageBanner.astro";
+import ProfileAbout from "../../components/ProfileAbout.astro";
+import ProjectOverview from "../../components/ProjectOverview.astro";
+import SiteLayout from "../../layouts/SiteLayout.astro";
+import githubIcon from "../../assets/about/profiles/github.svg?raw";
+import { projectDirectories } from "../../lib/project-directories";
+import profileSnapshot from "../../templates/profile-snapshot.html?raw";
+import projectRows from "../../templates/project-rows.html?raw";
 
 const entries = await getCollection("projects");
 const introductions = await Promise.all(entries.map(async (entry) =>
@@ -20,7 +22,7 @@ const projectLookup = `
 {{- $directory := dict -}}
 {{- $isOverview := false -}}
 {{- range (mustFromJson ${directories}) -}}
-  {{- if and .home (eq $path (trimSuffix "/" .home)) -}}
+  {{- if eq $path (trimSuffix "/" .home) -}}
     {{- $directory = . -}}
     {{- $isOverview = true -}}
   {{- else if hasPrefix .path $path -}}
@@ -33,28 +35,32 @@ const projectLookup = `
 {{- $snapshot := print "data/" $directory.filename -}}
 {{- $areaPath := $directory.path -}}
 {{- $slug := trimPrefix $areaPath $path -}}
-{{- $backLink := ternary "/#other-projects" $directory.back $isOverview -}}
+{{- $backLink := ternary $directory.overviewBack $directory.back $isOverview -}}
+{{- $backLabel := ternary $directory.overviewLabel "All projects" $isOverview -}}
+${profileSnapshot}
 {{- $project := dict -}}
+{{- $canonicalPath := $directory.home -}}
 {{- if $isOverview -}}
   {{- $project = dict "title" $directory.title "description" "" -}}
 {{- else -}}
-  {{- if not (fileExists $snapshot) -}}{{ httpError 503 }}{{- end -}}
-  {{- range (readFile $snapshot | mustFromJson) -}}
+  {{- if not $available -}}{{ httpError 503 }}{{- end -}}
+  {{- range $areas -}}
     {{- if eq .id $slug -}}{{- $project = . -}}{{- end -}}
   {{- end -}}
+  {{- if $project -}}{{- $canonicalPath = print $areaPath $project.id "/" -}}{{- end -}}
 {{- end -}}
 {{- if not $project -}}{{ httpError 404 }}{{- end -}}
 `;
 const title = "{{ $project.title | html }}";
 const description = "{{ $project.description | html }}";
-const canonical = `${new URL("/", Astro.site).origin}{{ $path | html }}/`;
+const canonical = `${new URL("/", Astro.site).origin}{{ $canonicalPath | html }}`;
 ---
 
 <Fragment set:html={projectLookup} />
 <SiteLayout title={title} description={description} canonical={canonical}>
   <article>
     <PageBanner title={title} description={description}>
-      <a class="back-link" href="{{ $backLink }}" set:html={"{{ if $isOverview }}Others{{ else }}All projects{{ end }}"} />
+      <a class="back-link" href="{{ $backLink }}" set:html={"{{ $backLabel | html }}"} />
       <Fragment set:html={`
         {{ with $project.topic }}
           <p class="entry-tag">
@@ -79,7 +85,13 @@ const canonical = `${new URL("/", Astro.site).origin}{{ $path | html }}/`;
     </PageBanner>
     <div class="shell section">
       <Fragment set:html={"{{ if $isOverview }}"} />
-      <ProjectOverviewSection />
+      <ProfileAbout class="organization-about" />
+      <section aria-label="Projects">
+        <Fragment set:html={'{{ if not $isPersonal }}'} />
+        <div class="section-heading"><h2 id="projects">Projects</h2></div>
+        <Fragment set:html={'{{ end }}'} />
+        <ProjectOverview />
+      </section>
       <Fragment set:html={"{{ else }}"} />
       {introductions.map(({ id, Content }) => (
         <>

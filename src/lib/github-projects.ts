@@ -1,11 +1,16 @@
-const existingIds: Record<string, string> = {
+import { projectDirectories } from "./project-directories.ts";
+
+const personalAliases: Record<string, string> = {
   "obsidian-community-plugins": "obsidian-plugins",
-  minecraft: "realmglass",
-  sites: "elseif-codes",
-  "path-notes": "file-tools",
+  realmglass: "minecraft",
+  "elseif-codes": "sites",
+  "elseif-cdes": "sites",
+  "file-tools": "useful-tools",
+  "path-notes": "useful-tools",
 };
 
 type Link = { name: string; href: string };
+type AboutPart = { text: string; href?: string };
 export type ProjectRow = {
   name: string;
   href?: string;
@@ -37,6 +42,31 @@ const categoryLine = /^\*\*Category:\*\* +(.+)$/;
 const publicationLine = /^\*\*Publication:\*\* +(.+)$/;
 const tableHeader = /^\|\s*(Project|Plugin|Entry)\s*\|\s*What it does\s*\|\s*Status\s*\|$/;
 export const markdownLink = /^\[([^\]]+)\]\((https:\/\/[^\s()<>]+)\)$/;
+
+function areaId(slug: string, owner: string)
+{
+  if (owner === projectDirectories.personal.owner && Object.hasOwn(personalAliases, slug)) return personalAliases[slug];
+  if (owner === projectDirectories.company.owner && slug === "websites") return "sites";
+  return slug;
+}
+
+function parseAbout(content: string): AboutPart[][]
+{
+  if (!content.trim()) return [];
+  return content.trim().split(/\r?\n(?:[ \t]*\r?\n)+/).map((paragraph) =>
+  {
+    const text = paragraph.replace(/\s+/g, " ");
+    const parts: AboutPart[] = [];
+    let offset = 0;
+    for (const match of text.matchAll(/\[([^\]]+)\]\((https:\/\/[^\s()<>]+)\)/g)) {
+      if (match.index > offset) parts.push({ text: text.slice(offset, match.index) });
+      parts.push({ text: match[1], href: match[2] });
+      offset = match.index + match[0].length;
+    }
+    if (offset < text.length) parts.push({ text: text.slice(offset) });
+    return parts;
+  });
+}
 
 function parseRows(lines: string[], title: string, owner: string)
 {
@@ -142,12 +172,15 @@ export function withProjectRows(project: ProfileProject, rows: ProjectRow[]): Pr
 
 export function parseProfile(readme: string, owner = "committed-sins")
 {
+  const aboutSection = readme.match(/^ {0,3}#+[ \t]+About[ \t]*(?:#+[ \t]*)?(?:\r?\n|$)([\s\S]*?)(?=^ {0,3}#+[ \t]+\S|(?![\s\S]))/im);
+  const content = aboutSection ? readme.replace(aboutSection[0], "") : readme;
+  const about = parseAbout(aboutSection?.[1] ?? "");
   const projects: ProfileProject[] = [];
   const ids = new Set<string>();
   const areas = new Map<string, { topic?: string; title: string }>();
   let hasAreaTable = false;
 
-  for (const section of readme.split(/^## /m).slice(1)) {
+  for (const section of content.split(/^## /m).slice(1)) {
     const [title, ...lines] = section.trim().split(/\r?\n/);
     const header = lines.findIndex((line) => line.trimStart().startsWith("|"));
     if (title === "Project areas") {
@@ -160,10 +193,11 @@ export function parseProfile(readme: string, owner = "committed-sins")
       for (const line of lines.slice(header + 2)) {
         if (!line.trim()) break;
         const area = line.match(/^\|\s*(-|[a-z0-9]+(?:-[a-z0-9]+)*)\s*\|\s*([^|]+?)\s*\|\s*([a-z0-9]+(?:-[a-z0-9]+)*)\s*\|$/);
-        if (!area || !area[2].trim() || areas.has(area[3]) || usedTopics.has(area[1]) || area[3] === "aureka") {
+        const id = area && areaId(area[3], owner);
+        if (!area || !id || !area[2].trim() || areas.has(id) || usedTopics.has(area[1]) || id === "aureka") {
           throw new Error(`Invalid or duplicate project area: ${line}`);
         }
-        const [, topic, name, id] = area;
+        const [, topic, name] = area;
         areas.set(id, { topic: topic === "-" ? undefined : topic, title: name });
         if (topic !== "-") usedTopics.add(topic);
       }
@@ -172,7 +206,7 @@ export function parseProfile(readme: string, owner = "committed-sins")
     if (header === -1) continue;
 
     const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
-    const id = Object.hasOwn(existingIds, slug) ? existingIds[slug] : slug;
+    const id = areaId(slug, owner);
     const [separator, ...body] = lines.slice(header + 1);
     const end = body.findIndex((line) => !line.trim());
     const rows = end === -1 ? body : body.slice(0, end);
@@ -215,13 +249,14 @@ export function parseProfile(readme: string, owner = "committed-sins")
   for (const [id, { topic }] of areas) {
     if (!topic && !byId.get(id)?.curated) throw new Error(`Project area ${id} must define a topic or a curated Entry table.`);
   }
-  return Array.from(areas, ([id, area]) => ({
+  const configuredProjects = Array.from(areas, ([id, area]) => ({
     description: "", status: "", groups: [], links: [],
     ...byId.get(id), id, ...area,
   }));
+  return { about, projects: configuredProjects };
 }
 
-export async function loadProfileProjects(owner = "committed-sins")
+export async function loadProfile(owner = "committed-sins")
 {
   const profileUrl = `https://raw.githubusercontent.com/${owner}/.github/main/profile/README.md`;
   const response = await fetch(profileUrl, { signal: AbortSignal.timeout(8_000) });

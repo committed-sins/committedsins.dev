@@ -27,7 +27,7 @@ Open `http://127.0.0.1:4323/`. Re-run the snapshot command to pick up GitHub cha
 ## Add content
 
 - For an article, copy `templates/article.md` into `src/content/writing/`, name the file with its URL slug, and fill out the frontmatter and body. Update the date and set `draft: false` when the article is ready. Drafts appear in the dev server and stay out of the production build. Keep private drafts outside this public repo.
-- Optional editorial introductions in `src/content/projects/` appear on the corresponding project area pages. Match the filename to the area's slug. Update the Aureka detail page and its homepage entry in `src/content/company/aureka.md`.
+- Optional editorial introductions in `src/content/projects/` appear on the corresponding project area pages. Match the filename to the area's slug. Organization introductions come from the `About` section of the corresponding GitHub profile README.
 
 `pnpm build` generates the site layout in `dist/`. The build reads local content and assets. Caddy renders the project directory at request time.
 
@@ -35,7 +35,9 @@ Push signed source commits to `main` to start the **Build for Blossom** GitHub w
 
 ## Update the project directory
 
-The **Project areas** table in the [Committed Sins GitHub profile README](https://github.com/committed-sins/.github/blob/main/profile/README.md) defines the areas under `/projects/`. The [Aureka Systems profile README](https://github.com/aurekasystems/.github/blob/main/profile/README.md) defines the areas listed on `/company/`, with detail pages under `/company/projects/`. Areas appear in table order. Choose the slug from the initial title and keep it when renaming an area. Changes appear after the next successful refresh. The company introduction is authored in `src/content/company/`.
+The **Project areas** table in the [Committed Sins GitHub profile README](https://github.com/committed-sins/.github/blob/main/profile/README.md) defines the areas under `/projects/`. Organization overviews are at `/organization/<organization-slug>/`, with area pages under `projects/<area-slug>/`. Areas appear in table order. Choose the slug from the initial title and keep it when renaming an area. Changes appear after the next successful refresh.
+
+In each profile README, a Markdown heading named `About` at any depth introduces the overview copy. Use paragraphs and HTTPS Markdown links before the next heading. The Committed Sins profile also supplies the introduction above Projects on the homepage. An empty About section leaves the introduction blank.
 
 A public repository can belong to multiple areas. Use a shared product topic for repositories that belong together. In the matching profile section, an optional `**Publication:** Development`, `Preview`, or `Published` line sets the status of the whole product. The project table in that section can name individual repositories and provide live website links.
 
@@ -47,6 +49,6 @@ Add the configured topic to a public repository in the organization to list it i
 
 On project pages, an optional `## Project details` section in a repository README adds plain-text paragraphs and standalone HTTPS Markdown links to its row.
 
-The [Aureka Systems GitHub profile README](https://github.com/aurekasystems/.github/blob/main/profile/README.md) defines the areas on `/company/` in the same way, using public repositories from the Aureka Systems organization.
+The [Aureka Systems GitHub profile README](https://github.com/aurekasystems/.github/blob/main/profile/README.md) defines the areas on `/organization/aureka-systems/` in the same way, using public repositories from the Aureka Systems organization.
 
 The Blossom timer updates both directories hourly. Caddy reads the snapshots when serving the homepage, project pages, and company page. If a refresh fails, its last successful snapshot stays in use.

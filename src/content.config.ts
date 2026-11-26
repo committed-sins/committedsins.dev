@@ -23,13 +23,4 @@ const writing = defineCollection({
   }),
 });
 
-const company = defineCollection({
-  loader: glob({ pattern: "**/*.md", base: "./src/content/company" }),
-  schema: z.object({
-    title: z.string(),
-    description: z.string(),
-    website: z.string().url(),
-  }),
-});
-
-export const collections = { projects, writing, company };
+export const collections = { projects, writing };

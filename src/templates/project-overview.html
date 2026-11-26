@@ -1,7 +1,7 @@
-{{ if fileExists $snapshot }}
-  {{ with $projects := readFile $snapshot | mustFromJson }}
+{{ if $available }}
+  {{ with $areas }}
   <ul class="entry-list">
-    {{ range $projects }}
+    {{ range . }}
       <li class="entry project-card">
         {{ with .topic }}
           <a class="entry-tag project-topic" href="https://github.com/orgs/{{ $owner }}/repositories?q={{ print "topic:" . | urlquery }}" aria-label="GitHub topic: {{ . | html }}">
