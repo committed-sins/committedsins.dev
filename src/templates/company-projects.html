@@ -1,6 +1,7 @@
 {{ $corporateListed := false }}
 {{ if fileExists "data/company-projects.json" }}
   {{ range (readFile "data/company-projects.json" | mustFromJson) }}
+    {{ $topic := .topic }}
     <section class="profile-project-list" aria-labelledby="company-projects-{{ .id | html }}">
       <h2 id="company-projects-{{ .id | html }}">{{ .title | html }}</h2>
       {{ if .groups }}
@@ -9,6 +10,10 @@
             {{ range .rows }}
               {{ $isCorporate := eq .repository $corporateRepository }}
               <li class="entry profile-entry">
+                <span class="entry-tag">
+                  {{ if .release }}<a href="{{ .release.href | html }}">{{ .release.name | html }}</a>
+                  {{ else }}<code>#{{ $topic | html }}</code>{{ end }}
+                </span>
                 {{ if $isCorporate }}
                   {{ $corporateListed = true }}
                   <a class="entry-title" href="{{ $corporateWebsite | html }}">{{ .name | html }}</a>

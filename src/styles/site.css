@@ -107,7 +107,6 @@ nav a:hover, nav a[aria-current] { color: var(--copper); text-decoration: underl
 .entry { display: grid; grid-template-columns: minmax(7rem, 0.55fr) minmax(0, 1.15fr) minmax(0, 1.4fr); align-items: baseline; gap: 1rem; padding: 1.35rem clamp(0.65rem, 1.5vw, 1.1rem); border-top: 1px solid var(--rule); text-decoration: none; }
 .entry:hover { background: var(--wash); }
 .entry:hover .entry-title { text-decoration: underline; }
-.profile-entry { grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); }
 .project-card { position: relative; }
 .project-card .entry-title { text-decoration: none; }
 .project-card .entry-title::after { position: absolute; inset: 0; content: ""; }
@@ -178,6 +177,7 @@ nav a:hover, nav a[aria-current] { color: var(--copper); text-decoration: underl
   .about-layout { grid-template-columns: 1fr; gap: 2rem; }
   .about-frame { width: min(100%, 12rem); }
   .entry { grid-template-columns: 1fr; gap: 0.35rem; padding-block: 1rem; }
+  .profile-entry .entry-tag:empty { display: none; }
   .entry .entry-tag { font-size: 0.8rem; }
   .entry-title { font-size: 1.125rem; line-height: 1.35; letter-spacing: -0.015em; }
 }

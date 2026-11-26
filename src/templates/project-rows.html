@@ -4,14 +4,16 @@
       {{ range $project.groups }}
         {{ range .rows }}
           <li class="entry profile-entry">
+            <span class="entry-tag">
+              {{ if .release }}<a href="{{ .release.href | html }}">{{ .release.name | html }}</a>
+              {{ else if .releaseChecked }}No release yet{{ end }}
+            </span>
             <a class="entry-title" href="{{ .href | html }}">{{ .name | html }}</a>
             <span class="entry-summary">
               {{ with .description }}<span class="entry-description">{{ . | html }}</span>{{ end }}
               <span class="entry-status">
                 {{ if .statusLink }}<a href="{{ .statusLink.href | html }}">{{ .statusLink.name | html }}</a>
                 {{ else }}{{ .status | html }}{{ end }}
-                {{ if .release }}&middot; <a href="{{ .release.href | html }}">{{ .release.name | html }}</a>
-                {{ else if .releaseChecked }}&middot; No release yet{{ end }}
               </span>
             </span>
           </li>

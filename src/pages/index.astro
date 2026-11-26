@@ -49,7 +49,7 @@ const articles = (await getCollection("writing", ({ data }) => import.meta.env.D
         <p class="subtitle section-intro">{company.description}</p>
       </div>
     </div>
-    <CompanyLink name={company.title} href="/company/" label={new URL(company.website).hostname} />
+    <CompanyLink name={company.title} href="/company/" label="#website" />
   </section>
   {articles.length > 0 && (
     <section class="shell section section-followup" aria-labelledby="writing">
