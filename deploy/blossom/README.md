@@ -32,7 +32,7 @@ sudo systemctl enable --now site-pull@committedsins.dev.timer
 
 Apply changes to the installed script or drop-in with `install` and reload systemd. Changes to Caddy or Compose still require a manual reload or recreation. When checking a failed run, use `journalctl -u site-pull@committedsins.dev.service` and compare `readlink .blossom/site` with `git rev-parse HEAD`.
 
-The website container returns HTTP 301 for legacy project slugs and for the former company and other-organization routes. The current build serves the project overview at `/projects/` and organization overviews under `/organization/`.
+The website container serves the project overview at `/projects/` and organization overviews under `/organization/`. Retired project and organization URLs return HTTP 404.
 
 ## Refresh project data
 
@@ -40,7 +40,7 @@ The project timer reads public GitHub data and the Obsidian Community directory 
 
 The service runs Node.js 24 using a pinned Docker image and writes the snapshot as `mjs`.
 
-For the first rollout on an existing Blossom deployment, stop `site-pull@committedsins.dev.timer` before publishing the website changes to `main`. Once the profile README has the **Project areas** table and GitHub has built the new site, pull the website checkout manually. Install the units and generate the first snapshot before recreating the website container with the new Caddyfile. Caddy continues serving the previous static build until the new template is available.
+For the first installation of the project refresh, make sure the profile README has the **Project areas** table and the active build contains `project-directory-template/directory/index.html`. Install the units and generate the first snapshot before loading the website Caddyfile.
 
 ```sh
 cd /srv/sites/committedsins.dev
@@ -51,7 +51,7 @@ sudo systemctl start committedsins-projects.service
 test -s .blossom/data/projects.json
 ```
 
-Validate and recreate the website container to load the updated Caddyfile. Then start `site-pull@committedsins.dev.service` to activate the new Astro build and start both timers. Check `https://committedsins.dev/data/projects.json` after activation. Use `journalctl -u committedsins-projects.service` if the refresh fails.
+Validate and recreate the website container to load the updated Caddyfile, then enable `committedsins-projects.timer` and `site-pull@committedsins.dev.timer`. Check `https://committedsins.dev/data/projects.json` after activation. Use `journalctl -u committedsins-projects.service` if the refresh fails.
 
 ## Public routes
 
