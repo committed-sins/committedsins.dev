@@ -1,3 +1,4 @@
+{{ $corporateListed := false }}
 {{ if fileExists "data/company-projects.json" }}
   {{ range (readFile "data/company-projects.json" | mustFromJson) }}
     <section class="profile-project-list" aria-labelledby="company-projects-{{ .id | html }}">
@@ -6,9 +7,22 @@
         <ul class="entry-list">
           {{ range .groups }}
             {{ range .rows }}
+              {{ $isCorporate := eq .repository $corporateRepository }}
               <li class="entry profile-entry">
-                <a class="entry-title" href="{{ .repository | html }}">{{ .name | html }}</a>
-                {{ with .description }}<span class="entry-description">{{ . | html }}</span>{{ end }}
+                {{ if $isCorporate }}
+                  {{ $corporateListed = true }}
+                  <a class="entry-title" href="{{ $corporateWebsite | html }}">{{ .name | html }}</a>
+                {{ else }}
+                  <a class="entry-title" href="{{ .repository | html }}">{{ .name | html }}</a>
+                {{ end }}
+                {{ if or .description $isCorporate }}
+                  <span class="entry-summary">
+                    {{ with .description }}<span class="entry-description">{{ . | html }}</span>{{ end }}
+                    {{ if $isCorporate }}
+                      <a class="entry-tag" href="{{ .repository | html }}" aria-label="{{ .name | html }} on GitHub">GitHub</a>
+                    {{ end }}
+                  </span>
+                {{ end }}
               </li>
             {{ end }}
           {{ end }}
@@ -18,4 +32,7 @@
       {{ end }}
     </section>
   {{ end }}
+{{ end }}
+{{ if not $corporateListed }}
+  <p class="project-source-link"><a href="{{ $corporateWebsite | html }}">Corporate website</a></p>
 {{ end }}

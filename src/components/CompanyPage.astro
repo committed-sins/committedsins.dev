@@ -4,6 +4,12 @@ import CompanyLink from "./CompanyLink.astro";
 import PageBanner from "./PageBanner.astro";
 import SiteLayout from "../layouts/SiteLayout.astro";
 
+interface Props
+{
+  showWebsiteLink?: boolean;
+}
+
+const { showWebsiteLink = true } = Astro.props;
 const company = await getEntry("company", "aureka");
 const { Content } = await render(company);
 const { title, description, website } = company.data;
@@ -15,7 +21,7 @@ const canonical = new URL("/company/", Astro.site).href;
     <a class="back-link" href="/#company">Company</a>
   </PageBanner>
   <div class="shell section">
-    <CompanyLink name={new URL(website).hostname} href={website} />
+    {showWebsiteLink && <CompanyLink name={new URL(website).hostname} href={website} />}
     <div class="prose company-prose"><Content /></div>
     <slot />
   </div>

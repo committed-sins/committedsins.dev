@@ -1,8 +1,15 @@
 ---
+import { getEntry } from "astro:content";
 import CompanyPage from "../../components/CompanyPage.astro";
 import companyProjects from "../../templates/company-projects.html?raw";
+
+const { data: { website } } = await getEntry("company", "aureka");
+const websiteRepository = `https://github.com/aurekasystems/${new URL(website).hostname}`;
+const companyLinks = `{{- $corporateWebsite := ${JSON.stringify(website)} -}}
+{{- $corporateRepository := ${JSON.stringify(websiteRepository)} -}}`;
 ---
 
-<CompanyPage>
+<CompanyPage showWebsiteLink={false}>
+  <Fragment set:html={companyLinks} />
   <Fragment set:html={companyProjects} />
 </CompanyPage>
