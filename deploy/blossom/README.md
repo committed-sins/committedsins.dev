@@ -32,6 +32,25 @@ sudo systemctl enable --now site-pull@committedsins.dev.timer
 
 Apply changes to the installed script or drop-in with `install` and reload systemd. Changes to Caddy or Compose still require a manual reload or recreation. When checking a failed run, use `journalctl -u site-pull@committedsins.dev.service` and compare `readlink .blossom/site` with `git rev-parse HEAD`.
 
+The website container returns HTTP 301 for the old `/projects/` and `/projects/aureka/` routes. Astro keeps HTML redirects for local static preview.
+
+## Refresh project data
+
+The project timer reads public GitHub data and the Obsidian Community directory hourly. It atomically replaces `.blossom/data/projects.json` after a successful refresh. Caddy renders the project overview and each detail page from that file when serving a request. New areas and repository updates go live without a site build, container restart, or Caddy reload. The last successful snapshot stays in use when a refresh fails.
+
+For the first rollout, publish the profile README with the **Project areas** table and update the site checkout. Check that Node.js 24 or later is available in the systemd executable search path. Install the units and generate the first snapshot before recreating the website container with the new Caddyfile.
+
+```sh
+cd /srv/sites/committedsins.dev
+sudo install -m 644 deploy/blossom/committedsins-projects.{service,timer} /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl start committedsins-projects.service
+test -s .blossom/data/projects.json
+sudo systemctl enable --now committedsins-projects.timer
+```
+
+Validate and recreate the website container to load the updated Caddyfile. Check `https://committedsins.dev/data/projects.json` after recreation. Use `journalctl -u committedsins-projects.service` if the refresh fails.
+
 ## Public routes
 
 Add `committedsins-website.caddy` to the shared proxy using its existing `sites-enabled` workflow. Validate the candidate with the current proxy configuration before activating it, then reload the proxy in place. Set the web DNS records for `committedsins.dev` to Blossom and verify HTTPS and the Imprint page.

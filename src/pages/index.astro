@@ -4,11 +4,9 @@ import { getCollection, getEntry } from "astro:content";
 import copperMonogram from "../assets/brand/committed-sins-copper.png";
 import ArticleList from "../components/ArticleList.astro";
 import CompanyLink from "../components/CompanyLink.astro";
-import ProjectList from "../components/ProjectList.astro";
 import SiteLayout from "../layouts/SiteLayout.astro";
-import { getSiteProjects } from "../lib/site-projects";
+import projectOverview from "../templates/project-overview.html?raw";
 
-const projects = await getSiteProjects();
 const { data: company } = await getEntry("company", "aureka");
 const articles = (await getCollection("writing", ({ data }) => import.meta.env.DEV || !data.draft))
   .sort((first, second) => second.data.published.getTime() - first.data.published.getTime());
@@ -42,7 +40,7 @@ const articles = (await getCollection("writing", ({ data }) => import.meta.env.D
         <p class="subtitle section-intro">Most of these started with something I wanted to use myself.</p>
       </div>
     </div>
-    <ProjectList projects={projects} />
+    <Fragment set:html={projectOverview} />
   </section>
   <section class="shell section section-followup" aria-labelledby="company">
     <div class="section-heading">
@@ -51,7 +49,7 @@ const articles = (await getCollection("writing", ({ data }) => import.meta.env.D
         <p class="subtitle section-intro">{company.description}</p>
       </div>
     </div>
-    <CompanyLink name={company.title} href="/company/" />
+    <CompanyLink name={company.title} href="/company/" label={new URL(company.website).hostname} />
   </section>
   {articles.length > 0 && (
     <section class="shell section section-followup" aria-labelledby="writing">

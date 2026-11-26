@@ -8,11 +8,19 @@ const existingIds: Record<string, string> = {
 };
 
 type Link = { name: string; href: string };
-type ProjectRow = Link & { description: string; status: string; statusLink?: Link };
+export type ProjectRow = Link & {
+  repository: string;
+  description: string;
+  status: string;
+  statusLink?: Link;
+  release?: Link;
+  releaseChecked?: boolean;
+};
 type ProjectGroup = { title?: string; rows: ProjectRow[] };
 export type ProfileProject = {
   id: string;
   title: string;
+  topic?: string;
   description: string;
   category?: string;
   status: string;
@@ -22,7 +30,6 @@ export type ProfileProject = {
 
 // Older versions of the profile listed these plugins as GitHub releases.
 const legacyCommunityIds = new Set(["revision-marks", "track-record", "issue-bridge"]);
-const communityDirectory = "Community directory";
 const categoryLine = /^\*\*Category:\*\* +(.+)$/;
 const tableHeader = /^\|\s*(?:Project|Plugin)\s*\|\s*What it does\s*\|\s*Status\s*\|$/;
 const markdownLink = /^\[([^\]]+)\]\((https:\/\/[^\s()<>]+)\)$/;
@@ -45,49 +52,91 @@ function parseRows(lines: string[], title: string)
     }
 
     return {
-      name: link[1], href: link[2], description, status,
+      name: link[1], href: link[2], repository: link[2], description, status,
       statusLink: statusLink ? { name: statusLink[1], href: statusLink[2] } : undefined,
     };
   });
 }
 
-function groupObsidianPlugins(rows: ProjectRow[])
+function sortProjectRows(rows: ProjectRow[])
 {
-  const community: ProjectGroup = { title: communityDirectory, rows: [] };
-  const releases: ProjectGroup = { title: "GitHub releases", rows: [] };
-  const development: ProjectGroup = { title: "In development", rows: [] };
-  const design: ProjectGroup = { title: "Design stage", rows: [] };
-
-  for (const row of rows) {
-    if (row.statusLink?.name === "Published" && /^https:\/\/obsidian\.md\/plugins\?id=[\w-]+$/.test(row.statusLink.href)) {
-      community.rows.push({ ...row, href: row.statusLink.href });
-    } else if (row.statusLink?.name === "GitHub release" && row.statusLink.href === `${row.href}/releases/latest`) {
-      const id = row.href.split("/").at(-1)?.replace(/^obsidian-plugin-/, "");
-      if (id && legacyCommunityIds.has(id)) {
-        community.rows.push({ ...row, href: `https://obsidian.md/plugins?id=${id}` });
-      } else {
-        releases.rows.push({ ...row, href: row.statusLink.href });
-      }
-    } else if (["Test preview", "Development preview", "In development"].includes(row.status)) {
-      development.rows.push(row);
-    } else if (row.status === "Design stage") {
-      design.rows.push(row);
-    } else {
-      throw new Error(`Unknown status for ${row.name}: ${row.status}`);
-    }
-  }
-
-  return [community, releases, development, design].filter((group) => group.rows.length > 0);
+  const order = ["Published", "Preview", "Development"];
+  return rows.sort((a, b) => order.indexOf(a.status) - order.indexOf(b.status));
 }
 
-function parseProfile(readme: string)
+function normalizeObsidianPlugins(rows: ProjectRow[])
+{
+  return rows.map((row) =>
+  {
+    if (row.statusLink?.name === "Published" && /^https:\/\/obsidian\.md\/plugins\?id=[\w-]+$/.test(row.statusLink.href)) {
+      return { ...row, status: "Published", href: row.statusLink.href };
+    }
+    if (row.statusLink?.name === "GitHub release" && row.statusLink.href === `${row.href}/releases/latest`) {
+      const id = row.href.split("/").at(-1)?.replace(/^obsidian-plugin-/, "");
+      if (id && legacyCommunityIds.has(id)) {
+        const href = `https://obsidian.md/plugins?id=${id}`;
+        return { ...row, href, status: "Published", statusLink: { name: "Published", href } };
+      }
+      return { ...row, status: "Preview", statusLink: undefined };
+    }
+    if (["Preview", "Test preview", "Development preview"].includes(row.status)) return { ...row, status: "Preview" };
+    if (["Development", "In development", "Design stage"].includes(row.status)) return { ...row, status: "Development" };
+    throw new Error(`Unknown status for ${row.name}: ${row.status}`);
+  });
+}
+
+function normalizeProjectRows(rows: ProjectRow[])
+{
+  return rows.map((row) =>
+  {
+    if (row.statusLink && ["Live site", "Published"].includes(row.statusLink.name)) {
+      return { ...row, status: "Published", statusLink: { ...row.statusLink, name: "Published" } };
+    }
+    const preview = ["Preview", "Test preview", "Development preview"].includes(row.status)
+      || row.statusLink?.name === "GitHub release";
+    return { ...row, status: preview ? "Preview" : "Development", statusLink: undefined };
+  });
+}
+
+export function withProjectRows(project: ProfileProject, rows: ProjectRow[]): ProfileProject
+{
+  sortProjectRows(rows);
+  const publishedCount = project.id === "obsidian-plugins" || project.topic === "obsidian-plugin"
+    ? rows.filter(({ status }) => status === "Published").length
+    : 0;
+  const status = publishedCount
+    ? `${publishedCount} published in the Community directory`
+    : Array.from(new Set(rows.map((row) => row.status))).join(" · ");
+  return { ...project, status, groups: rows.length ? [{ rows }] : [] };
+}
+
+export function parseProfile(readme: string)
 {
   const projects: ProfileProject[] = [];
   const ids = new Set<string>();
+  const areas = new Map<string, { topic: string; title: string }>();
 
   for (const section of readme.split(/^## /m).slice(1)) {
     const [title, ...lines] = section.trim().split(/\r?\n/);
     const header = lines.findIndex((line) => line.trimStart().startsWith("|"));
+    if (title === "Project areas") {
+      if (header === -1 || lines[header].trim() !== "| Topic | Title | Slug |") {
+        throw new Error("Expected Topic, Title, and Slug columns under Project areas.");
+      }
+      const usedTopics = new Set<string>();
+      for (const line of lines.slice(header + 2)) {
+        if (!line.trim()) break;
+        const area = line.match(/^\|\s*([a-z0-9]+(?:-[a-z0-9]+)*)\s*\|\s*([^|]+?)\s*\|\s*([a-z0-9]+(?:-[a-z0-9]+)*)\s*\|$/);
+        if (!area || !area[2].trim() || areas.has(area[3]) || usedTopics.has(area[1]) || area[3] === "aureka") {
+          throw new Error(`Invalid or duplicate project area: ${line}`);
+        }
+        const [, topic, name, id] = area;
+        areas.set(id, { topic, title: name });
+        usedTopics.add(topic);
+      }
+      if (!areas.size) throw new Error("The Project areas table is empty.");
+      continue;
+    }
     if (header === -1) continue;
 
     const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
@@ -108,18 +157,18 @@ function parseProfile(readme: string)
       const link = line.match(markdownLink);
       return link ? [{ name: link[1], href: link[2] }] : [];
     });
-    const entries = parseRows(rows, title);
-    const groups = id === "obsidian-plugins" ? groupObsidianPlugins(entries) : [{ rows: entries }];
-    const publishedCount = groups.find((group) => group.title === communityDirectory)?.rows.length;
-    const status = publishedCount
-      ? `${publishedCount} published in the Community directory`
-      : Array.from(new Set(entries.map((entry) => entry.statusLink?.name ?? entry.status))).join(" · ");
-    projects.push({ id, title, description, category, status, groups, links });
+    const parsed = parseRows(rows, title);
+    const entries = id === "obsidian-plugins" ? normalizeObsidianPlugins(parsed) : normalizeProjectRows(parsed);
+    projects.push(withProjectRows({ id, title, description, category, status: "", groups: [], links }, entries));
     ids.add(id);
   }
 
-  if (projects.length === 0) throw new Error("The Committed Sins profile contains no project tables.");
-  return projects;
+  if (!areas.size) throw new Error("The Committed Sins profile has no Project areas table.");
+  const byId = new Map(projects.map((project) => [project.id, project]));
+  return Array.from(areas, ([id, area]) => ({
+    description: "", status: "", groups: [], links: [],
+    ...byId.get(id), id, ...area,
+  }));
 }
 
 export async function loadProfileProjects()

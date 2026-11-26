@@ -1,0 +1,9 @@
+[Unit]
+Description=Refresh the Committed Sins project directory hourly
+
+[Timer]
+OnCalendar=hourly
+Persistent=true
+
+[Install]
+WantedBy=timers.target

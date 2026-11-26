@@ -3,15 +3,16 @@ interface Props
 {
   name: string;
   href: string;
+  label?: string;
 }
 
-const { name, href } = Astro.props;
+const { name, href, label = "Website" } = Astro.props;
 ---
 
 <ul class="entry-list">
   <li>
     <a class="entry" href={href}>
-      <span class="entry-tag">Link</span>
+      <span class="entry-tag">{label}</span>
       <span class="entry-title">{name}</span>
     </a>
   </li>

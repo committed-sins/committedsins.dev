@@ -1,0 +1,59 @@
+---
+import { getCollection, render } from "astro:content";
+import PageBanner from "../components/PageBanner.astro";
+import SiteLayout from "../layouts/SiteLayout.astro";
+import projectRows from "../templates/project-rows.html?raw";
+
+const entries = await getCollection("projects");
+const introductions = await Promise.all(entries.map(async (entry) =>
+{
+  const { Content } = await render(entry);
+  return { id: entry.id, Content };
+}));
+
+const projectLookup = `
+{{ if not (fileExists "data/projects.json") }}{{ httpError 503 }}{{ end }}
+{{- $slug := .OriginalReq.URL.Path | trimSuffix "/" | trimPrefix "/projects/" -}}
+{{- $project := dict -}}
+{{- range (readFile "data/projects.json" | mustFromJson) -}}
+  {{- if eq .id $slug -}}{{- $project = . -}}{{- end -}}
+{{- end -}}
+{{- if not $project -}}{{ httpError 404 }}{{- end -}}
+`;
+const title = "{{ $project.title | html }}";
+const description = "{{ $project.description | html }}";
+const canonical = `${new URL("/projects/", Astro.site)}{{ $slug | pathEscape }}/`;
+---
+
+<Fragment set:html={projectLookup} />
+<SiteLayout title={title} description={description} canonical={canonical}>
+  <article>
+    <PageBanner title={title} description={description}>
+      <a class="back-link" href="/#projects">All projects</a>
+      <Fragment set:html={`
+        <p class="entry-tag">
+          <a href="https://github.com/orgs/committed-sins/repositories?q={{ print "topic:" $project.topic | urlquery }}" aria-label="GitHub topic: {{ $project.topic | html }}">
+            <span aria-hidden="true">#</span><code>{{ $project.topic | html }}</code>
+          </a>
+        </p>
+      `} />
+      <Fragment slot="after" set:html={`
+        {{ if eq $project.topic "obsidian-plugin" }}
+          <ul class="project-source-links" role="list">
+            <li><a href="https://community.obsidian.md/users/committed-sins">Obsidian Community</a></li>
+          </ul>
+        {{ end }}
+      `} />
+    </PageBanner>
+    <div class="shell section">
+      {introductions.map(({ id, Content }) => (
+        <>
+          <Fragment set:html={`{{ if eq $slug ${JSON.stringify(id)} }}`} />
+          <div class="prose"><Content /></div>
+          <Fragment set:html={'{{ end }}'} />
+        </>
+      ))}
+      <Fragment set:html={projectRows} />
+    </div>
+  </article>
+</SiteLayout>

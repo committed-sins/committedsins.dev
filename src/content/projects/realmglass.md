@@ -1,7 +1,7 @@
 ---
 title: Realmglass
 description: A dashboard project for Minecraft servers.
-category: Server tools
+category: Web frameworks
 status: In development. Jaedenar dashboard live.
 order: 3
 profile: true

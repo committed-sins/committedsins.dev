@@ -1,0 +1,31 @@
+<div class="profile-project-list">
+  {{ if $project.groups }}
+    <ul class="entry-list">
+      {{ range $project.groups }}
+        {{ range .rows }}
+          <li class="entry profile-entry">
+            <span class="entry-tag">
+              {{ if .release }}<a href="{{ .release.href | html }}">{{ .release.name | html }}</a>
+              {{ else if .releaseChecked }}No release yet{{ end }}
+            </span>
+            <a class="entry-title" href="{{ .href | html }}">{{ .name | html }}</a>
+            <span class="entry-summary">
+              {{ with .description }}<span class="entry-description">{{ . | html }}</span>{{ end }}
+              <span class="entry-status">
+                {{ if .statusLink }}<a href="{{ .statusLink.href | html }}">{{ .statusLink.name | html }}</a>
+                {{ else }}{{ .status | html }}{{ end }}
+              </span>
+            </span>
+          </li>
+        {{ end }}
+      {{ end }}
+    </ul>
+  {{ else }}
+    <p class="empty-state">No public repositories have this topic yet.</p>
+  {{ end }}
+  {{ if ne $project.topic "obsidian-plugin" }}
+    {{ range $project.links }}
+      <p class="project-source-link"><a href="{{ .href | html }}">{{ .name | html }}</a></p>
+    {{ end }}
+  {{ end }}
+</div>

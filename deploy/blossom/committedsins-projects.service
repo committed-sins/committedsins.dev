@@ -1,0 +1,11 @@
+[Unit]
+Description=Refresh the Committed Sins project directory
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=mjs
+WorkingDirectory=/srv/sites/committedsins.dev
+UMask=0022
+ExecStart=node deploy/blossom/refresh-projects.mjs .blossom/data

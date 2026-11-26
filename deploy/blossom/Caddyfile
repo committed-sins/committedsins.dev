@@ -3,15 +3,48 @@
 	persist_config off
 }
 
-:80 {
-	root * /srv/site
+{$COMMITTEDSINS_HTTP_ADDRESS::80} {
+	@legacyProjects path /projects /projects/
+	redir @legacyProjects "/#projects" permanent
+	@legacyAureka path /projects/aureka /projects/aureka/
+	redir @legacyAureka /company/ permanent
+	redir /index.html / permanent
+	root * {$COMMITTEDSINS_SITE_ROOT:/srv/site}
 	encode zstd gzip
 	header {
 		X-Content-Type-Options nosniff
 		Referrer-Policy strict-origin-when-cross-origin
-		Content-Security-Policy "default-src 'self'; connect-src 'self' https://raw.githubusercontent.com/committed-sins/.github/main/profile/README.md; img-src 'self' data:; base-uri 'none'; form-action 'none'; frame-ancestors 'none'"
+		Content-Security-Policy "default-src 'self'; img-src 'self' data:; base-uri 'none'; form-action 'none'; frame-ancestors 'none'"
 		Permissions-Policy "camera=(), microphone=(), geolocation=()"
 		-Server
 	}
-	file_server
+	handle /data/projects.json {
+		root * {$COMMITTEDSINS_STATE_ROOT:/srv}
+		header Cache-Control "no-cache"
+		file_server
+	}
+	handle /project-directory-template* {
+		respond 404
+	}
+	handle / {
+		templates {
+			root {$COMMITTEDSINS_STATE_ROOT:/srv}
+			mime text/html
+		}
+		header Cache-Control "no-cache"
+		file_server
+	}
+	@projectArea path_regexp ^/projects/[a-z0-9]+(-[a-z0-9]+)*/?$
+	handle @projectArea {
+		rewrite * /project-directory-template/index.html
+		templates {
+			root {$COMMITTEDSINS_STATE_ROOT:/srv}
+			mime text/html
+		}
+		header Cache-Control "no-cache"
+		file_server
+	}
+	handle {
+		file_server
+	}
 }

@@ -104,15 +104,23 @@ nav a:hover, nav a[aria-current] { color: var(--copper); text-decoration: underl
 .section-heading { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.7rem; }
 .section-intro { margin-top: 0.65rem; }
 .entry-list { margin: 0; padding: 0; list-style: none; border-bottom: 1px solid var(--rule); }
-.entry { display: grid; grid-template-columns: minmax(7rem, 0.55fr) minmax(0, 1.15fr) minmax(0, 1.4fr); align-items: baseline; gap: 1rem; padding: 1.35rem 0.5rem; border-top: 1px solid var(--rule); text-decoration: none; }
-.section-heading + .entry-list .entry { padding-inline-start: 0; }
+.entry { display: grid; grid-template-columns: minmax(7rem, 0.55fr) minmax(0, 1.15fr) minmax(0, 1.4fr); align-items: baseline; gap: 1rem; padding: 1.35rem clamp(0.65rem, 1.5vw, 1.1rem); border-top: 1px solid var(--rule); text-decoration: none; }
 .entry:hover { background: var(--wash); }
 .entry:hover .entry-title { text-decoration: underline; }
+.project-card { position: relative; }
+.project-card .entry-title { text-decoration: none; }
+.project-card .entry-title::after { position: absolute; inset: 0; content: ""; }
+.project-card .entry-title:is(:hover, :focus-visible) { text-decoration: underline; }
+.project-topic { position: relative; z-index: 1; justify-self: start; }
+.entry-tag code { font: inherit; }
 .entry-tag { color: var(--muted); font: 0.875rem/1.5 var(--mono); }
 .entry-title { font-size: clamp(1.2rem, 2.3vw, 1.66rem); font-weight: 600; line-height: 1.25; letter-spacing: -0.035em; }
 .entry-description { color: var(--muted); line-height: 1.55; }
 .entry-summary { display: grid; justify-items: start; gap: 0.45rem; }
 .entry-status { padding: 0.2rem 0.45rem; color: var(--muted); background: var(--wash); font: 0.8rem/1.45 var(--mono); }
+.profile-project-list { margin-top: 1.5rem; }
+.project-source-link { margin-top: 1rem; }
+.project-source-links { display: flex; flex-wrap: wrap; gap: 0.5rem 1.4rem; margin: 1rem 0 0; padding: 0; list-style: none; }
 
 .about-banner .subtitle { max-width: 48rem; }
 .about-layout {
@@ -152,8 +160,6 @@ nav a:hover, nav a[aria-current] { color: var(--copper); text-decoration: underl
 .prose pre { overflow: auto; padding: 1rem; background: var(--wash); }
 .company-prose { margin-top: 1.7rem; }
 .prose :is(h2, h3) { margin-block: 1.75rem 0.6rem; }
-.project-status { max-width: 65ch; margin-top: 2rem; padding-top: 0.9rem; border-top: 1px solid var(--rule); color: var(--muted); }
-.project-row-status { display: block; color: var(--muted); }
 .empty-state { border-top: 1px solid var(--rule); padding-top: 1.35rem; color: var(--muted); }
 .site-footer { border-top: 1px solid var(--rule); }
 .footer-inner { min-height: 5rem; color: var(--muted); font-size: 0.9rem; }
@@ -170,7 +176,8 @@ nav a:hover, nav a[aria-current] { color: var(--copper); text-decoration: underl
   .hero-art { display: none; }
   .about-layout { grid-template-columns: 1fr; gap: 2rem; }
   .about-frame { width: min(100%, 12rem); }
-  .entry { grid-template-columns: 1fr; gap: 0.35rem; padding: 1rem 0.25rem; }
+  .entry { grid-template-columns: 1fr; gap: 0.35rem; padding-block: 1rem; }
+  .profile-entry .entry-tag:empty { display: none; }
   .entry .entry-tag { font-size: 0.8rem; }
   .entry-title { font-size: 1.125rem; line-height: 1.35; letter-spacing: -0.015em; }
 }
