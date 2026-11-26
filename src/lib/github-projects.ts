@@ -13,7 +13,7 @@ export type ProjectRow = Link & {
   description: string;
   status: string;
   statusLink?: Link;
-  release?: Link;
+  release?: Link & { publishedAt: string | null };
   releaseChecked?: boolean;
 };
 type ProjectGroup = { title?: string; rows: ProjectRow[] };
@@ -58,10 +58,16 @@ function parseRows(lines: string[], title: string)
   });
 }
 
-function sortProjectRows(rows: ProjectRow[])
+function sortProjectRows(rows: ProjectRow[], byRelease: boolean)
 {
   const order = ["Published", "Preview", "Development"];
-  return rows.sort((a, b) => order.indexOf(a.status) - order.indexOf(b.status));
+  rows.sort((a, b) =>
+  {
+    const byStatus = order.indexOf(a.status) - order.indexOf(b.status);
+    if (byStatus || !byRelease) return byStatus;
+    return (b.release?.publishedAt ?? "").localeCompare(a.release?.publishedAt ?? "")
+      || a.name.localeCompare(b.name, "en");
+  });
 }
 
 function normalizeObsidianPlugins(rows: ProjectRow[])
@@ -100,8 +106,9 @@ function normalizeProjectRows(rows: ProjectRow[])
 
 export function withProjectRows(project: ProfileProject, rows: ProjectRow[]): ProfileProject
 {
-  sortProjectRows(rows);
-  const publishedCount = project.id === "obsidian-plugins" || project.topic === "obsidian-plugin"
+  const isObsidian = project.id === "obsidian-plugins" || project.topic === "obsidian-plugin";
+  sortProjectRows(rows, isObsidian);
+  const publishedCount = isObsidian
     ? rows.filter(({ status }) => status === "Published").length
     : 0;
   const status = publishedCount

@@ -9,7 +9,13 @@ type Repository = {
   topics: string[];
   private: boolean;
 };
-type Release = { tag_name: string; html_url: string; draft: boolean; prerelease: boolean };
+type Release = {
+  tag_name: string;
+  html_url: string;
+  published_at: string | null;
+  draft: boolean;
+  prerelease: boolean;
+};
 type CommunityPlugin = { id: string; name: string; repo: string };
 
 const githubApi = "https://api.github.com";
@@ -115,12 +121,12 @@ export async function loadTopicProjects(projects: ProfileProject[]): Promise<Pro
         description: details?.summary || repo.description || previous?.description || "",
         status,
         statusLink,
-        release: release ? { name: release.tag_name, href: release.html_url } : undefined,
+        release: release ? { name: release.tag_name, href: release.html_url, publishedAt: release.published_at } : undefined,
         releaseChecked: true,
       };
       return { row, order: saved?.order ?? previousRows.length };
     });
-    groups.sort((a, b) => a.order - b.order || a.row.name.localeCompare(b.row.name));
+    if (!isObsidian) groups.sort((a, b) => a.order - b.order || a.row.name.localeCompare(b.row.name));
     return withProjectRows(profile, groups.map(({ row }) => row));
   });
 }
