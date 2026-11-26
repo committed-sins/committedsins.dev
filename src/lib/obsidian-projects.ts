@@ -1,5 +1,5 @@
 import type { ProfileProject, ProjectRow } from "./github-projects";
-import { withProjectRows } from "./github-projects.ts";
+import { markdownLink, withProjectRows } from "./github-projects.ts";
 
 type Repository = {
   name: string;
@@ -18,6 +18,7 @@ type Release = {
   prerelease: boolean;
 };
 type CommunityPlugin = { id: string; name: string; repo: string };
+type ProjectReadme = { summary?: string; details?: ProjectRow["details"] };
 
 const githubApi = "https://api.github.com";
 const directoryUrl = "https://raw.githubusercontent.com/obsidianmd/obsidian-releases/master/community-plugins.json";
@@ -41,7 +42,7 @@ async function listRepositories(owner: string)
   }
 }
 
-async function readSummary(repo: Repository)
+async function readProjectReadme(repo: Repository): Promise<ProjectReadme | undefined>
 {
   const branch = repo.default_branch.split("/").map(encodeURIComponent).join("/");
   const url = `https://raw.githubusercontent.com/${repo.full_name}/refs/heads/${branch}/README.md`;
@@ -51,7 +52,14 @@ async function readSummary(repo: Repository)
 
     const readme = await response.text();
     const summary = readme.match(/^## Summary[ \t]*\r?\n(?:[ \t]*\r?\n)*([^\r\n]+(?:\r?\n(?![ \t]*$|#)[^\r\n]+)*)/m);
-    return summary?.[1].replace(/\s+/g, " ").trim();
+    const detailsSection = readme.match(/^## Project details[ \t]*\r?\n([\s\S]*?)(?=^#{1,2}[ \t]+|(?![\s\S]))/m)?.[1].trim();
+    const details = detailsSection?.split(/\r?\n(?:[ \t]*\r?\n)+/).filter((paragraph) => paragraph.trim()).map((paragraph) =>
+    {
+      const text = paragraph.replace(/\s+/g, " ").trim();
+      const link = text.match(markdownLink);
+      return link ? { text: link[1], href: link[2] } : { text };
+    });
+    return { summary: summary?.[1].replace(/\s+/g, " ").trim(), details };
   } catch {
     return undefined;
   }
@@ -86,12 +94,12 @@ export async function loadTopicProjects(projects: ProfileProject[], owner = "com
   ]);
   const repositories = allRepositories.filter(({ topics: repoTopics }) => repoTopics?.some((topic) => topics.has(topic)));
   const listedByRepo = new Map(directory.map((plugin) => [plugin.repo.toLowerCase(), plugin]));
-  const metadata = new Map<string, { release?: Release; summary?: string }>();
+  const metadata = new Map<string, { release?: Release; readme?: ProjectReadme }>();
   for (let start = 0; start < repositories.length; start += 4) {
     await Promise.all(repositories.slice(start, start + 4).map(async (repo) =>
     {
-      const [release, summary] = await Promise.all([readLatestRelease(repo), readSummary(repo)]);
-      metadata.set(repo.name, { release, summary });
+      const [release, readme] = await Promise.all([readLatestRelease(repo), readProjectReadme(repo)]);
+      metadata.set(repo.name, { release, readme });
     }));
   }
 
@@ -118,7 +126,8 @@ export async function loadTopicProjects(projects: ProfileProject[], owner = "com
         name,
         href: directoryLink?.href ?? repo.html_url,
         repository: repo.html_url,
-        description: details?.summary || repo.description || previous?.description || "",
+        description: details?.readme?.summary || repo.description || previous?.description || "",
+        details: details?.readme?.details,
         status,
         statusLink,
         release: release ? { name: release.tag_name, href: release.html_url, publishedAt: release.published_at } : undefined,

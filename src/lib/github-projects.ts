@@ -9,6 +9,7 @@ type Link = { name: string; href: string };
 export type ProjectRow = Link & {
   repository: string;
   description: string;
+  details?: { text: string; href?: string }[];
   status: string;
   statusLink?: Link;
   release?: Link & { publishedAt: string | null };
@@ -30,7 +31,7 @@ export type ProfileProject = {
 const legacyCommunityIds = new Set(["revision-marks", "track-record", "issue-bridge"]);
 const categoryLine = /^\*\*Category:\*\* +(.+)$/;
 const tableHeader = /^\|\s*(?:Project|Plugin)\s*\|\s*What it does\s*\|\s*Status\s*\|$/;
-const markdownLink = /^\[([^\]]+)\]\((https:\/\/[^\s()<>]+)\)$/;
+export const markdownLink = /^\[([^\]]+)\]\((https:\/\/[^\s()<>]+)\)$/;
 
 function parseRows(lines: string[], title: string, owner: string)
 {
