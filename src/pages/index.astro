@@ -1,13 +1,21 @@
 ---
 import { Image } from "astro:assets";
-import { getCollection, getEntry } from "astro:content";
+import { getCollection } from "astro:content";
 import copperMonogram from "../assets/brand/committed-sins-copper.png";
 import ArticleList from "../components/ArticleList.astro";
-import CompanyLink from "../components/CompanyLink.astro";
+import DirectoryLinks from "../components/DirectoryLinks.astro";
+import ProfileAbout from "../components/ProfileAbout.astro";
+import ProjectOverview from "../components/ProjectOverview.astro";
 import SiteLayout from "../layouts/SiteLayout.astro";
-import projectOverview from "../templates/project-overview.html?raw";
+import { otherProjectDirectories, projectDirectories } from "../lib/project-directories";
+import profileSnapshot from "../templates/profile-snapshot.html?raw";
 
-const { data: company } = await getEntry("company", "aureka");
+const { company, personal } = projectDirectories;
+const homepageProfile = `
+{{- $snapshot := "data/${personal.filename}" -}}
+{{- $owner := "${personal.owner}" -}}
+{{- $areaPath := "${personal.path}" -}}
+${profileSnapshot}`;
 const articles = (await getCollection("writing", ({ data }) => import.meta.env.DEV || !data.draft))
   .sort((first, second) => second.data.published.getTime() - first.data.published.getTime());
 ---
@@ -30,26 +38,34 @@ const articles = (await getCollection("writing", ({ data }) => import.meta.env.D
       </div>
     </div>
   </header>
-  <div class="shell home-intro">
-    <p class="prose">I started Committed Sins to give my (side) projects a home.</p>
-  </div>
+  <Fragment set:html={homepageProfile} />
+  <ProfileAbout class="shell home-intro" />
   <section class="shell section section-followup" aria-labelledby="projects">
     <div class="section-heading">
       <div>
-        <h2 id="projects">Projects</h2>
+        <h2 id="projects"><a href={personal.home}>Projects</a></h2>
         <p class="subtitle section-intro">Most of these started with something I wanted to use myself.</p>
       </div>
     </div>
-    <Fragment set:html={projectOverview} />
+    <ProjectOverview />
   </section>
   <section class="shell section section-followup" aria-labelledby="company">
     <div class="section-heading">
       <div>
-        <h2 id="company">Company</h2>
-        <p class="subtitle section-intro">{company.description}</p>
+        <h2 id="company">Business</h2>
+        <p class="subtitle section-intro">The company I’m building.</p>
       </div>
     </div>
-    <CompanyLink name={company.title} href="/company/" label="#webservices" />
+    <DirectoryLinks entries={[{ name: company.title, href: company.home, label: company.slug }]} />
+  </section>
+  <section class="shell section section-followup" aria-labelledby="other-projects">
+    <div class="section-heading">
+      <div>
+        <h2 id="other-projects">Others</h2>
+        <p class="subtitle section-intro">Things that ended up with a name of their own.</p>
+      </div>
+    </div>
+    <DirectoryLinks entries={otherProjectDirectories.map(({ title, home, slug }) => ({ name: title, href: home, label: slug }))} />
   </section>
   {articles.length > 0 && (
     <section class="shell section section-followup" aria-labelledby="writing">

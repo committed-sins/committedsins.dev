@@ -1,0 +1,8 @@
+{{- $available := fileExists $snapshot -}}
+{{- $areas := list -}}
+{{- $about := list -}}
+{{- if $available -}}
+  {{- $profile := readFile $snapshot | mustFromJson -}}
+  {{- $areas = $profile.projects -}}
+  {{- $about = $profile.about -}}
+{{- end -}}

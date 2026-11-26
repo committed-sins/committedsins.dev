@@ -1,12 +1,16 @@
-{{ if fileExists "data/projects.json" }}
-  {{ $projects := readFile "data/projects.json" | mustFromJson }}
+{{ if $available }}
+  {{ with $areas }}
   <ul class="entry-list">
-    {{ range $projects }}
+    {{ range . }}
       <li class="entry project-card">
-        <a class="entry-tag project-topic" href="https://github.com/orgs/committed-sins/repositories?q={{ print "topic:" .topic | urlquery }}" aria-label="GitHub topic: {{ .topic | html }}">
-          <span aria-hidden="true">#</span><code>{{ .topic | html }}</code>
-        </a>
-        <a class="entry-title" href="/projects/{{ .id | pathEscape }}/">{{ .title | html }}</a>
+        {{ with .topic }}
+          <a class="entry-tag project-topic" href="https://github.com/orgs/{{ $owner }}/repositories?q={{ print "topic:" . | urlquery }}" aria-label="GitHub topic: {{ . | html }}">
+            <span aria-hidden="true">#</span><code>{{ . | html }}</code>
+          </a>
+        {{ else }}
+          <span class="entry-tag" aria-hidden="true"></span>
+        {{ end }}
+        <a class="entry-title" href="{{ $areaPath }}{{ .id | pathEscape }}/">{{ .title | html }}</a>
         <span class="entry-summary">
           {{ with .description }}<span class="entry-description">{{ . | html }}</span>{{ end }}
           {{ with .status }}<span class="entry-status">{{ . | html }}</span>{{ end }}
@@ -14,6 +18,9 @@
       </li>
     {{ end }}
   </ul>
+  {{ else }}
+    <p class="empty-state">No projects yet.</p>
+  {{ end }}
 {{ else }}
   <p class="empty-state">The project directory is temporarily unavailable.</p>
 {{ end }}

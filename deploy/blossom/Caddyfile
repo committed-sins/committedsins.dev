@@ -3,14 +3,50 @@
 	persist_config off
 }
 
+(directory_templates) {
+	templates {
+		root {$COMMITTEDSINS_STATE_ROOT:/srv}
+		mime text/html
+	}
+	header Cache-Control "no-cache"
+	file_server
+}
+
 {$COMMITTEDSINS_HTTP_ADDRESS::80} {
-	@legacyProjects path /projects /projects/
-	redir @legacyProjects "/#projects" permanent
-	@legacyAureka path /projects/aureka /projects/aureka/
-	redir @legacyAureka /company/ permanent
-	redir /index.html / permanent
 	root * {$COMMITTEDSINS_SITE_ROOT:/srv/site}
 	encode zstd gzip
+	map {path} {legacy_directory} {
+		~^/projects/(elseif-codes|elseif-cdes)/?$ /projects/sites/
+		~^/projects/realmglass/?$ /projects/minecraft/
+		~^/projects/file-tools/?$ /projects/useful-tools/
+		~^/projects/obsidian-community-plugins/?$ /projects/obsidian-plugins/
+		~^/(projects/aureka|company)/?$ /organization/aureka-systems/
+		~^/(company|organization/aureka-systems)/projects/websites/?$ /organization/aureka-systems/projects/sites/
+		~^/company/projects/([a-z0-9-]+)/?$ /organization/aureka-systems/projects/${1}/
+		~^/other-projects/xdmz/?$ /organization/xdmz-eu/
+		~^/other-projects/limis/?$ /organization/limis-at/
+		~^/other-projects/staged/?$ /organization/staged/
+		~^/other-projects/xdmz/projects/([a-z0-9-]+)/?$ /organization/xdmz-eu/projects/${1}/
+		~^/other-projects/limis/projects/([a-z0-9-]+)/?$ /organization/limis-at/projects/${1}/
+		~^/other-projects/staged/projects/([a-z0-9-]+)/?$ /organization/staged/projects/${1}/
+		default ""
+	}
+	@legacyDirectory {
+		file /project-directory-template/directory/index.html
+		expression {legacy_directory} != ""
+	}
+	redir @legacyDirectory {legacy_directory} permanent
+	redir /index.html / permanent
+	@previousProjectsIndex {
+		path /projects /projects/
+		not file /project-directory-template/directory/index.html
+	}
+	redir @previousProjectsIndex "/#projects" permanent
+	@previousAureka {
+		path /projects/aureka /projects/aureka/
+		not file /project-directory-template/directory/index.html
+	}
+	redir @previousAureka /company/ permanent
 	header {
 		X-Content-Type-Options nosniff
 		Referrer-Policy strict-origin-when-cross-origin
@@ -28,41 +64,36 @@
 	}
 	@projectHome {
 		path /
-		file /project-directory-template/index.html
+		file {
+			try_files /project-directory-template/directory/index.html /project-directory-template/index.html
+		}
 	}
 	handle @projectHome {
-		templates {
-			root {$COMMITTEDSINS_STATE_ROOT:/srv}
-			mime text/html
-		}
-		header Cache-Control "no-cache"
-		file_server
+		import directory_templates
 	}
-	@company {
+	@projectDirectory {
+		path_regexp ^/(projects(/[a-z0-9-]+)?|organization/[a-z0-9-]+(/projects/[a-z0-9-]+)?)/?$
+		file /project-directory-template/directory/index.html
+	}
+	handle @projectDirectory {
+		rewrite * /project-directory-template/directory/index.html
+		import directory_templates
+	}
+	@previousCompany {
 		path /company /company/
 		file /project-directory-template/company/index.html
 	}
-	handle @company {
+	handle @previousCompany {
 		rewrite * /project-directory-template/company/index.html
-		templates {
-			root {$COMMITTEDSINS_STATE_ROOT:/srv}
-			mime text/html
-		}
-		header Cache-Control "no-cache"
-		file_server
+		import directory_templates
 	}
-	@projectArea {
-		path_regexp ^/projects/[a-z0-9]+(-[a-z0-9]+)*/?$
+	@previousProjectArea {
+		path_regexp ^/((company/|other-projects/[a-z0-9-]+/)?projects/[a-z0-9-]+|other-projects/[a-z0-9-]+)/?$
 		file /project-directory-template/index.html
 	}
-	handle @projectArea {
+	handle @previousProjectArea {
 		rewrite * /project-directory-template/index.html
-		templates {
-			root {$COMMITTEDSINS_STATE_ROOT:/srv}
-			mime text/html
-		}
-		header Cache-Control "no-cache"
-		file_server
+		import directory_templates
 	}
 	handle {
 		file_server

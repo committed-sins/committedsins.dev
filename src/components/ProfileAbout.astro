@@ -1,0 +1,20 @@
+---
+interface Props
+{
+  class?: string;
+}
+
+const { class: className } = Astro.props;
+---
+
+<Fragment set:html={"{{ if $about }}"} />
+<div class={className}>
+  <div class="prose">
+    <Fragment set:html={`
+      {{ range $about }}
+        <p>{{ range . }}{{ if .href }}<a href="{{ .href | html }}">{{ .text | html }}</a>{{ else }}{{ .text | html }}{{ end }}{{ end }}</p>
+      {{ end }}
+    `} />
+  </div>
+</div>
+<Fragment set:html={"{{ end }}"} />

@@ -32,11 +32,11 @@ sudo systemctl enable --now site-pull@committedsins.dev.timer
 
 Apply changes to the installed script or drop-in with `install` and reload systemd. Changes to Caddy or Compose still require a manual reload or recreation. When checking a failed run, use `journalctl -u site-pull@committedsins.dev.service` and compare `readlink .blossom/site` with `git rev-parse HEAD`.
 
-The website container returns HTTP 301 for the old `/projects/` and `/projects/aureka/` routes. Astro keeps HTML redirects for local static preview.
+The website container returns HTTP 301 for legacy project slugs and for the former company and other-organization routes. The current build serves the project overview at `/projects/` and organization overviews under `/organization/`.
 
 ## Refresh project data
 
-The project timer reads public GitHub data and the Obsidian Community directory hourly. It atomically replaces `.blossom/data/projects.json` after a successful refresh. Caddy renders the project overview and each detail page from that file when serving a request. New areas and repository updates go live without a site build, container restart, or Caddy reload. The last successful snapshot stays in use when a refresh fails.
+The project timer reads public GitHub data and the Obsidian Community directory hourly. It atomically replaces each profile snapshot under `.blossom/data/` after a successful refresh. Caddy renders introductions, project overviews, and detail pages from those snapshots. The personal project list is also available at `/data/projects.json`. New areas and repository updates go live without a site build, container restart, or Caddy reload. The last successful snapshot stays in use when a refresh fails.
 
 The service runs Node.js 24 using a pinned Docker image and writes the snapshot as `mjs`.
 
