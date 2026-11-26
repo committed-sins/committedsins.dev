@@ -2,6 +2,8 @@
 import { getCollection, render } from "astro:content";
 import PageBanner from "../components/PageBanner.astro";
 import SiteLayout from "../layouts/SiteLayout.astro";
+import githubIcon from "../assets/about/profiles/github.svg?raw";
+import { projectDirectories } from "../lib/project-directories";
 import projectRows from "../templates/project-rows.html?raw";
 
 const entries = await getCollection("projects");
@@ -11,49 +13,81 @@ const introductions = await Promise.all(entries.map(async (entry) =>
   return { id: entry.id, Content };
 }));
 
+const directories = JSON.stringify(JSON.stringify(Object.values(projectDirectories)));
 const projectLookup = `
-{{ if not (fileExists "data/projects.json") }}{{ httpError 503 }}{{ end }}
-{{- $slug := .OriginalReq.URL.Path | trimSuffix "/" | trimPrefix "/projects/" -}}
+{{- $path := .OriginalReq.URL.Path | trimSuffix "/" -}}
+{{- $directory := dict -}}
+{{- range (mustFromJson ${directories}) -}}
+  {{- if or (and .title (eq $path (trimSuffix "/" .path))) (and (not .title) (hasPrefix .path $path)) -}}
+    {{- $directory = . -}}
+  {{- end -}}
+{{- end -}}
+{{- if not $directory -}}{{ httpError 404 }}{{- end -}}
+{{- $owner := $directory.owner -}}
+{{- $isPersonal := eq $owner "${projectDirectories.personal.owner}" -}}
+{{- $snapshot := print "data/" $directory.filename -}}
+{{ if not (fileExists $snapshot) }}{{ httpError 503 }}{{ end }}
+{{- $areas := readFile $snapshot | mustFromJson -}}
+{{- $slug := trimPrefix $directory.path $path -}}
 {{- $project := dict -}}
-{{- range (readFile "data/projects.json" | mustFromJson) -}}
-  {{- if eq .id $slug -}}{{- $project = . -}}{{- end -}}
+{{- if $directory.title -}}
+  {{- $project = dict "title" $directory.title "description" "" "groups" (list) "links" (list) -}}
+  {{- range $areas -}}
+    {{- if .groups -}}
+      {{- $rows := list -}}
+      {{- range .groups -}}{{- $rows = concat $rows .rows -}}{{- end -}}
+      {{- $groupTitle := ternary .title "" (gt (len $areas) 1) -}}
+      {{- $_ := set $project "groups" (append $project.groups (dict "rows" $rows "title" $groupTitle)) -}}
+    {{- end -}}
+    {{- $_ := set $project "links" (concat $project.links .links) -}}
+    {{- if not $project.description -}}{{- $_ := set $project "description" .description -}}{{- end -}}
+  {{- end -}}
+{{- else -}}
+  {{- range $areas -}}{{- if eq .id $slug -}}{{- $project = . -}}{{- end -}}{{- end -}}
 {{- end -}}
 {{- if not $project -}}{{ httpError 404 }}{{- end -}}
 `;
 const title = "{{ $project.title | html }}";
 const description = "{{ $project.description | html }}";
-const canonical = `${new URL("/projects/", Astro.site)}{{ $slug | pathEscape }}/`;
+const canonical = `${new URL("/", Astro.site).origin}{{ $path | html }}/`;
 ---
 
 <Fragment set:html={projectLookup} />
 <SiteLayout title={title} description={description} canonical={canonical}>
   <article>
     <PageBanner title={title} description={description}>
-      <a class="back-link" href="/#projects">All projects</a>
+      <a class="back-link" href="{{ $directory.back }}" set:html={"{{ if $directory.title }}Other projects{{ else }}All projects{{ end }}"} />
       <Fragment set:html={`
-        <p class="entry-tag">
-          <a href="https://github.com/orgs/committed-sins/repositories?q={{ print "topic:" $project.topic | urlquery }}" aria-label="GitHub topic: {{ $project.topic | html }}">
-            <span aria-hidden="true">#</span><code>{{ $project.topic | html }}</code>
-          </a>
-        </p>
+        {{ with $project.topic }}
+          <p class="entry-tag">
+            <a href="https://github.com/orgs/{{ $owner }}/repositories?q={{ print "topic:" . | urlquery }}" aria-label="GitHub topic: {{ . | html }}">
+              <span aria-hidden="true">#</span><code>{{ . | html }}</code>
+            </a>
+          </p>
+        {{ end }}
       `} />
       <Fragment slot="after" set:html={`
-        {{ if eq $project.topic "obsidian-plugin" }}
+        {{ if and $isPersonal (eq $project.topic "obsidian-plugin") }}
           <ul class="project-source-links" role="list">
             <li><a href="https://community.obsidian.md/users/committed-sins">Obsidian Community</a></li>
           </ul>
+        {{ end }}
+        {{ with $project.publication }}
+          <p class="project-publication"><span class="entry-status">
+            {{ if .href }}<a href="{{ .href | html }}">{{ .name | html }}</a>{{ else }}{{ .name | html }}{{ end }}
+          </span></p>
         {{ end }}
       `} />
     </PageBanner>
     <div class="shell section">
       {introductions.map(({ id, Content }) => (
         <>
-          <Fragment set:html={`{{ if eq $slug ${JSON.stringify(id)} }}`} />
+          <Fragment set:html={`{{ if and $isPersonal (eq $slug ${JSON.stringify(id)}) }}`} />
           <div class="prose"><Content /></div>
           <Fragment set:html={'{{ end }}'} />
         </>
       ))}
-      <Fragment set:html={projectRows} />
+      <Fragment set:html={projectRows.replaceAll("<!-- github-icon -->", githubIcon)} />
     </div>
   </article>
 </SiteLayout>

@@ -1,5 +1,6 @@
 import type { ProfileProject, ProjectRow } from "./github-projects";
 import { markdownLink, withProjectRows } from "./github-projects.ts";
+import { projectDirectories, websiteRepository } from "./project-directories.ts";
 
 type Repository = {
   name: string;
@@ -65,8 +66,6 @@ async function readProjectReadme(repo: Repository): Promise<ProjectReadme | unde
   }
 }
 
-const websiteRepository = "https://github.com/committed-sins/committedsins.dev";
-
 function isBlossomRelease(repository: string, tag: string)
 {
   return repository === websiteRepository && /^blossom-[a-f0-9]{40}$/i.test(tag);
@@ -83,29 +82,46 @@ async function readLatestRelease(repo: Repository)
   }
 }
 
-export async function loadTopicProjects(projects: ProfileProject[], owner = "committed-sins"): Promise<ProfileProject[]>
+export async function loadProjectRepositories(projects: ProfileProject[], owner: string): Promise<ProfileProject[]>
 {
+  const isCompany = owner === projectDirectories.company.owner;
   const topics = new Set(projects.map(({ topic }) => topic).filter(Boolean));
-  if (!topics.size) return projects;
+  const curatedRepos = new Set(projects.filter(({ topic }) => !topic)
+    .flatMap(({ groups }) => groups.flatMap(({ rows }) => rows))
+    .flatMap(({ repository }) => repository?.startsWith(`https://github.com/${owner}/`) ? [repository] : []));
+  if (!topics.size && !curatedRepos.size) return projects;
 
   const [allRepositories, directory] = await Promise.all([
     listRepositories(owner),
     topics.has("obsidian-plugin") ? fetchList<CommunityPlugin>(directoryUrl) : [],
   ]);
-  const repositories = allRepositories.filter(({ topics: repoTopics }) => repoTopics?.some((topic) => topics.has(topic)));
+  const repositories = allRepositories.filter(({ topics: repoTopics, html_url }) =>
+    curatedRepos.has(html_url) || repoTopics?.some((topic) => topics.has(topic)));
   const listedByRepo = new Map(directory.map((plugin) => [plugin.repo.toLowerCase(), plugin]));
   const metadata = new Map<string, { release?: Release; readme?: ProjectReadme }>();
   for (let start = 0; start < repositories.length; start += 4) {
     await Promise.all(repositories.slice(start, start + 4).map(async (repo) =>
     {
       const [release, readme] = await Promise.all([readLatestRelease(repo), readProjectReadme(repo)]);
-      metadata.set(repo.name, { release, readme });
+      metadata.set(repo.html_url, { release, readme });
     }));
   }
 
   return projects.map((profile) =>
   {
-    if (!profile.topic) return profile;
+    if (!profile.topic) {
+      const rows = profile.groups.flatMap(({ rows }) => rows).map((row) =>
+      {
+        const release = row.repository ? metadata.get(row.repository)?.release : undefined;
+        if (!release) return row;
+        return {
+          ...row,
+          status: row.status || (release.prerelease ? "Preview" : "Published"),
+          release: { name: release.tag_name, href: release.html_url, publishedAt: release.published_at },
+        };
+      });
+      return withProjectRows(profile, rows);
+    }
     const topic = profile.topic;
     const isObsidian = topic === "obsidian-plugin";
     const previousRows = profile.groups.flatMap((group) => group.rows);
@@ -115,18 +131,22 @@ export async function loadTopicProjects(projects: ProfileProject[], owner = "com
       const saved = previousByRepo.get(repo.html_url);
       const previous = saved?.row;
       const plugin = isObsidian ? listedByRepo.get(repo.full_name.toLowerCase()) : undefined;
-      const details = metadata.get(repo.name);
+      const details = metadata.get(repo.html_url);
       const release = details?.release;
       const directoryLink = plugin ? { name: "Published", href: `https://obsidian.md/plugins?id=${plugin.id}` } : undefined;
       const name = plugin?.name ?? previous?.name ?? repo.name.replace(/^obsidian-plugin-/, "");
       const statusLink = directoryLink ?? (isObsidian ? undefined : previous?.statusLink);
       const published = statusLink || (!isObsidian && release && !release.prerelease);
       const status = published ? "Published" : release ? "Preview" : "Development";
+      const liveWebsite = isCompany ? statusLink?.href : undefined;
+      const repoDescription = isCompany
+        ? previous?.description || repo.description
+        : repo.description || previous?.description;
       const row: ProjectRow = {
         name,
-        href: directoryLink?.href ?? repo.html_url,
+        href: directoryLink?.href ?? liveWebsite ?? repo.html_url,
         repository: repo.html_url,
-        description: details?.readme?.summary || repo.description || previous?.description || "",
+        description: details?.readme?.summary || repoDescription || "",
         details: details?.readme?.details,
         status,
         statusLink,
@@ -136,6 +156,11 @@ export async function loadTopicProjects(projects: ProfileProject[], owner = "com
       return { row, order: saved?.order ?? previousRows.length };
     });
     if (!isObsidian) groups.sort((a, b) => a.order - b.order || a.row.name.localeCompare(b.row.name));
-    return withProjectRows(profile, groups.map(({ row }) => row));
+    const rows = groups.map(({ row }) => row);
+    if (profile.curated) {
+      const repositoryNames = new Set(rows.map(({ name }) => name.toLowerCase()));
+      rows.push(...previousRows.filter(({ name, href }) => !href && !repositoryNames.has(name.toLowerCase())));
+    }
+    return withProjectRows(profile, rows);
   });
 }

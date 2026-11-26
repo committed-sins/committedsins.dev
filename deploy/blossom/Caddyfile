@@ -52,7 +52,7 @@
 		file_server
 	}
 	@projectArea {
-		path_regexp ^/projects/[a-z0-9]+(-[a-z0-9]+)*/?$
+		path_regexp ^/((company/)?projects|other-projects)/[a-z0-9]+(-[a-z0-9]+)*/?$
 		file /project-directory-template/index.html
 	}
 	handle @projectArea {

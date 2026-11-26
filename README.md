@@ -22,7 +22,7 @@ node deploy/blossom/refresh-projects.mjs (Join-Path $env:COMMITTEDSINS_STATE_ROO
 caddy run --config deploy/blossom/Caddyfile --adapter caddyfile
 ```
 
-Open `http://127.0.0.1:4323/`. Re-run the snapshot command to pick up GitHub changes. Set `PROFILE_README_PATH` or `COMPANY_PROFILE_README_PATH` before that command to preview edits from a local personal or company profile README.
+Open `http://127.0.0.1:4323/`. Re-run the snapshot command to pick up GitHub changes. Set `PROFILE_README_PATH`, `COMPANY_PROFILE_README_PATH`, `XDMZ_PROFILE_README_PATH`, `LIMIS_PROFILE_README_PATH`, or `STAGED_PROFILE_README_PATH` before that command to use a local copy of the corresponding profile README.
 
 ## Add content
 
@@ -35,7 +35,13 @@ Push signed source commits to `main` to start the **Build for Blossom** GitHub w
 
 ## Update the project directory
 
-The **Project areas** table in the [Committed Sins GitHub profile README](https://github.com/committed-sins/.github/blob/main/profile/README.md) defines one project page per row, in table order. For a new area, choose the **Slug** from its title and keep that slug when changing the title later. New areas, title changes, and a different order take effect on the next successful refresh. Company is authored separately in `src/content/company/`.
+The **Project areas** table in the [Committed Sins GitHub profile README](https://github.com/committed-sins/.github/blob/main/profile/README.md) defines the areas under `/projects/`. The [Aureka Systems profile README](https://github.com/aurekasystems/.github/blob/main/profile/README.md) defines the areas listed on `/company/`, with detail pages under `/company/projects/`. Areas appear in table order. Choose the slug from the initial title and keep it when renaming an area. Changes appear after the next successful refresh. The company introduction is authored in `src/content/company/`.
+
+A public repository can belong to multiple areas. Use a shared product topic for repositories that belong together. In the matching profile section, an optional `**Publication:** Development`, `Preview`, or `Published` line sets the status of the whole product. The project table in that section can name individual repositories and provide live website links.
+
+For a curated list, set the topic to `-` and add an `Entry | What it does | Status` table under the matching area heading. Entries can use a plain name or an HTTPS Markdown link. Use `-` in the status column when there is no status to display. A topic-based area can also use an `Entry` table for plain-text entries while their repositories are private or pending.
+
+The xDMZ, LiMiS, and StaGeD profile READMEs drive the directories under **Other projects**. Their configured areas appear as sections on each organization page. A `Project areas` table with no rows produces an empty directory.
 
 Add the configured topic to a public repository in the organization to list it in that area. The site uses the repo description or a plain-text paragraph under an optional `## Summary` heading in the repo README. Each area has a single list ordered by **Published**, **Preview**, and **Development**. The version links directly to its GitHub release. An Obsidian directory listing, a live website link, or the latest release being stable marks a project as **Published**. For Obsidian plugins, the directory listing determines publication. An available release without publication is a **Preview**. A project without either is in **Development**. Blossom deployment releases are excluded from the website's release history on the project page.
 

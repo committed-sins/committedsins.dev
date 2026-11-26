@@ -3,9 +3,10 @@ import { Image } from "astro:assets";
 import { getCollection, getEntry } from "astro:content";
 import copperMonogram from "../assets/brand/committed-sins-copper.png";
 import ArticleList from "../components/ArticleList.astro";
-import CompanyLink from "../components/CompanyLink.astro";
+import DirectoryLinks from "../components/DirectoryLinks.astro";
+import ProjectOverview from "../components/ProjectOverview.astro";
 import SiteLayout from "../layouts/SiteLayout.astro";
-import projectOverview from "../templates/project-overview.html?raw";
+import { otherProjectDirectories } from "../lib/project-directories";
 
 const { data: company } = await getEntry("company", "aureka");
 const articles = (await getCollection("writing", ({ data }) => import.meta.env.DEV || !data.draft))
@@ -40,7 +41,7 @@ const articles = (await getCollection("writing", ({ data }) => import.meta.env.D
         <p class="subtitle section-intro">Most of these started with something I wanted to use myself.</p>
       </div>
     </div>
-    <Fragment set:html={projectOverview} />
+    <ProjectOverview directory="personal" />
   </section>
   <section class="shell section section-followup" aria-labelledby="company">
     <div class="section-heading">
@@ -49,7 +50,13 @@ const articles = (await getCollection("writing", ({ data }) => import.meta.env.D
         <p class="subtitle section-intro">{company.description}</p>
       </div>
     </div>
-    <CompanyLink name={company.title} href="/company/" label="#webservices" />
+    <DirectoryLinks entries={[{ name: company.title, href: "/company/", label: new URL(company.website).hostname }]} />
+  </section>
+  <section class="shell section section-followup" aria-labelledby="other-projects">
+    <div class="section-heading">
+      <h2 id="other-projects">Other projects</h2>
+    </div>
+    <DirectoryLinks entries={otherProjectDirectories.map(({ title, path, owner }) => ({ name: title, href: path, label: owner }))} />
   </section>
   {articles.length > 0 && (
     <section class="shell section section-followup" aria-labelledby="writing">

@@ -51,7 +51,7 @@ const navigation = [
     <main id="main"><slot /></main>
     <footer class="site-footer">
       <div class="shell footer-inner">
-        <p>Force pushing with love · 2026</p>
+        <p>Force pushing with love · 2026<span hidden data-site-release><span aria-hidden="true"> · </span><a></a></span></p>
         <div class="footer-links">
           <a href="/rss.xml">RSS</a>
           <a href="/imprint/" aria-current={Astro.url.pathname === "/imprint/" ? "page" : undefined}>Imprint</a>
@@ -60,3 +60,35 @@ const navigation = [
     </footer>
   </body>
 </html>
+
+<script>
+  import type { ProfileProject } from "../lib/github-projects";
+  import { projectDirectories, websiteRepository } from "../lib/project-directories";
+
+  async function showSiteRelease()
+  {
+    const container = document.querySelector<HTMLElement>("[data-site-release]");
+    const link = container?.querySelector("a");
+    if (!container || !link) return;
+
+    try {
+      const response = await fetch(`/data/${projectDirectories.personal.filename}`, { signal: AbortSignal.timeout(4_000) });
+      if (!response.ok) return;
+
+      const areas: ProfileProject[] = await response.json();
+      const website = areas.flatMap(({ groups }) => groups.flatMap(({ rows }) => rows))
+        .find(({ repository }) => repository === websiteRepository);
+      const release = website?.release;
+      if (!release?.name || !release.href.startsWith(`${websiteRepository}/releases/tag/`)) return;
+
+      link.href = release.href;
+      link.textContent = release.name;
+      link.setAttribute("aria-label", `Website release ${release.name}`);
+      container.hidden = false;
+    } catch {
+      // Keep the version hidden if the project snapshot is unavailable.
+    }
+  }
+
+  void showSiteRelease();
+</script>

@@ -1,0 +1,14 @@
+---
+import { projectDirectories } from "../lib/project-directories";
+import overview from "../templates/project-overview.html?raw";
+
+interface Props
+{
+  directory: keyof typeof projectDirectories;
+}
+
+const { owner, filename, path } = projectDirectories[Astro.props.directory];
+const projectOverview = `{{ $snapshot := "data/${filename}" }}{{ $owner := "${owner}" }}{{ $areaPath := "${path}" }}${overview}`;
+---
+
+<Fragment set:html={projectOverview} />
