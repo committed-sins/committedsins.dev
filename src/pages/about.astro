@@ -2,6 +2,7 @@
 import { Image } from "astro:assets";
 import aurekaIcon from "../assets/about/aureka-icon.png";
 import bmdIcon from "../assets/about/bmd-icon.png";
+import portrait from "../assets/about/michael-portrait.jpg";
 import glassImage from "../assets/about/mjs-glass.png";
 import GitHubIcon from "../assets/about/profiles/github.svg";
 import LinkedInIcon from "../assets/about/profiles/linkedin.svg";
@@ -29,9 +30,23 @@ const profiles = [
       </div>
     </header>
     <div class="shell section about-layout">
-      <div class="prose">
+      <div class="prose about-intro">
         <p>Committed Sins is my personal site.</p>
         <p>It’s where I keep the changelogs for things that were supposed to take five minutes.</p>
+      </div>
+      <figure class="about-portrait">
+        <div class="about-frame">
+          <Image
+            src={portrait}
+            alt="Black-and-white portrait of Michael J. Stallinger"
+            width={544}
+            widths={[192, 272, 384, 544]}
+            sizes="(max-width: 44rem) 12rem, 17rem"
+            format="webp"
+          />
+        </div>
+      </figure>
+      <div class="prose about-details">
         <section aria-labelledby="work">
           <h2 id="work">Work</h2>
           <p class="subtitle section-intro">Where the bills get paid.</p>
@@ -53,16 +68,7 @@ const profiles = [
             ))}
           </ul>
         </section>
-      </div>
-      <div class="about-frame">
-        <Image
-          src={glassImage}
-          alt=""
-          width={512}
-          widths={[192, 272, 384, 512]}
-          sizes="(max-width: 44rem) 12rem, 17rem"
-          format="webp"
-        />
+        <Image class="about-signature" src={glassImage} alt="MJS monogram" width={192} widths={[96, 192]} sizes="6rem" format="webp" />
       </div>
     </div>
   </article>
