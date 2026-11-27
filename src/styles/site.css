@@ -128,18 +128,33 @@ nav a:hover, nav a[aria-current] { color: var(--copper); text-decoration: underl
 .about-banner .subtitle { max-width: 48rem; }
 .about-layout {
   display: grid;
-  grid-template-columns: minmax(0, 38rem) minmax(0, 17rem);
+  grid-template-columns: minmax(0, 38rem) minmax(15rem, 24rem);
+  grid-template-areas: "intro portrait" "details portrait";
+  grid-template-rows: auto 1fr;
   align-items: start;
-  gap: clamp(2rem, 6vw, 5rem);
+  column-gap: clamp(2rem, 6vw, 5rem);
+}
+.about-intro { grid-area: intro; }
+.about-details { grid-area: details; }
+.about-portrait {
+  grid-area: portrait;
+  justify-self: end;
+  width: min(100%, 17rem);
+  margin: 0;
 }
 .about-frame {
-  width: 100%;
   padding: 0.45rem;
-  border: 1px solid #bb815f;
-  background: #1b1717;
-  box-shadow: 0.35rem 0.35rem 0 #a262474d;
+  border: 1px solid #c4997c;
+  background: linear-gradient(145deg, #fbefd9, #deb497 58%, #c0805e);
+  box-shadow: 0.3rem 0.3rem 0 #a2624733;
 }
-.about-frame img { display: block; width: 100%; height: auto; }
+.about-portrait img { display: block; width: 100%; height: auto; }
+.about-signature {
+  width: clamp(4.25rem, 8vw, 6rem);
+  margin-block-start: 1.25rem;
+  margin-inline-start: var(--section-indent);
+  border: 1px solid var(--rule);
+}
 .about-links { margin: 0.65rem 0 0; padding: 0; list-style: none; }
 .about-links li { padding-block: 0.25rem; }
 .about-links a { display: inline-flex; align-items: center; gap: 0.65rem; }
@@ -184,8 +199,14 @@ nav a:hover, nav a[aria-current] { color: var(--copper); text-decoration: underl
   .home-hero h1 { font-size: clamp(2.7rem, 12vw, 3.7rem); }
   .hero-wrap .subtitle { margin-top: 0.9rem; }
   .hero-art { display: none; }
-  .about-layout { grid-template-columns: 1fr; gap: 2rem; }
-  .about-frame { width: min(100%, 12rem); }
+  .about-layout {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: "intro" "portrait" "details";
+    grid-template-rows: auto;
+    row-gap: 1.5rem;
+  }
+  .about-portrait { width: min(100%, 13rem); justify-self: center; }
+  .about-details > section:first-child h2 { margin-top: 0; }
   .entry { grid-template-columns: 1fr; gap: 0.35rem; padding-block: 1rem; }
   .entry .entry-tag { font-size: 0.8rem; }
   .entry-title { font-size: 1.125rem; line-height: 1.35; letter-spacing: -0.015em; }
