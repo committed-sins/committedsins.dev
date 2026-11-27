@@ -140,22 +140,19 @@ nav a:hover, nav a[aria-current] { color: var(--copper); text-decoration: underl
   box-shadow: 0.35rem 0.35rem 0 #a262474d;
 }
 .about-frame img { display: block; width: 100%; height: auto; }
-.about-work dl { margin: 0; border-bottom: 1px solid var(--rule); }
-.about-work dl > div {
-  display: grid;
-  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1fr);
-  gap: 0.15rem 1rem;
-  padding-block: 0.6rem;
-  border-top: 1px solid var(--rule);
+.about-links { margin: 0.65rem 0 0; padding: 0; list-style: none; }
+.about-links li { padding-block: 0.25rem; }
+.about-links a { display: inline-flex; align-items: center; gap: 0.65rem; }
+.about-links :is(svg, img) { flex: none; width: 1rem; height: 1rem; color: var(--muted); }
+.about-links a > img {
+  filter: grayscale(1) invert(1) contrast(2.15);
+  mix-blend-mode: multiply;
+  scale: 1.2;
 }
-.about-work dd { margin: 0; color: var(--muted); }
-.profile-links { margin: 0; padding: 0; list-style: none; }
-.profile-links a { display: inline-flex; align-items: center; gap: 0.65rem; padding-block: 0.25rem; }
-.profile-links svg { flex: none; color: var(--muted); }
+.about-role { padding-inline-start: 1.65rem; color: var(--muted); font-size: 0.9rem; }
 .section-intro,
 .section-heading + .entry-list,
-.about-work dl,
-.profile-links { margin-inline-start: var(--section-indent); }
+.about-links { margin-inline-start: var(--section-indent); }
 .prose { max-width: 65ch; font-size: 1.1rem; line-height: 1.65; }
 .prose p + p { margin-top: 1em; }
 .prose p + a { display: inline-block; margin-top: 1em; }
@@ -171,6 +168,8 @@ nav a:hover, nav a[aria-current] { color: var(--copper); text-decoration: underl
 .empty-state { border-top: 1px solid var(--rule); padding-top: 1.35rem; color: var(--muted); }
 .site-footer { border-top: 1px solid var(--rule); }
 .footer-inner { min-height: 5rem; color: var(--muted); font-size: 0.9rem; }
+.footer-version { color: #736b66; }
+.footer-version:is(:hover, :focus-visible) { color: var(--muted); }
 .footer-links { display: flex; flex-wrap: wrap; gap: 0.45rem 1.2rem; }
 
 @media (max-width: 44rem) {
@@ -194,6 +193,5 @@ nav a:hover, nav a[aria-current] { color: var(--copper); text-decoration: underl
   .brand-icon-image { width: 2.5rem; }
   nav { column-gap: 0.55rem; }
   nav a { font-size: 0.86rem; }
-  .about-work dl > div { grid-template-columns: 1fr; }
   .footer-inner { align-items: flex-start; flex-direction: column; gap: 0.75rem; padding-block: 1.1rem; }
 }
