@@ -168,8 +168,11 @@ nav a:hover, nav a[aria-current] { color: var(--copper); text-decoration: underl
 .empty-state { border-top: 1px solid var(--rule); padding-top: 1.35rem; color: var(--muted); }
 .site-footer { border-top: 1px solid var(--rule); }
 .footer-inner { min-height: 5rem; color: var(--muted); font-size: 0.9rem; }
-.footer-version { color: #736b66; }
-.footer-version:is(:hover, :focus-visible) { color: var(--muted); }
+.footer-version { font-size: 0.8rem; opacity: 0.5; }
+.footer-version:is(:hover, :focus-visible) { opacity: 1; }
+@media (prefers-contrast: more) {
+  .footer-version { opacity: 1; }
+}
 .footer-links { display: flex; flex-wrap: wrap; gap: 0.45rem 1.2rem; }
 
 @media (max-width: 44rem) {
