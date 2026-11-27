@@ -1,0 +1,84 @@
+# Deploys a published GitHub release to Blossom. The release's files go on
+# the branch `release`, which Blossom pulls, and the static build for that
+# commit is published as the pre-release `blossom-<commit SHA>`. The build
+# shows the release tag in the footer. Pushes to `main` are not deployed.
+name: Release
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing release tag to deploy again (e.g. for a rollback)
+        required: true
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-branch
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    # Blossom builds are pre-releases too; they never start this workflow.
+    if: github.event_name == 'workflow_dispatch' || !github.event.release.prerelease
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      ASTRO_TELEMETRY_DISABLED: "1"
+      TAG: ${{ github.event.release.tag_name || inputs.tag }}
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          fetch-depth: 0
+      - name: Check out the release
+        run: |
+          case "$TAG" in
+            ''|*[!A-Za-z0-9._-]*) echo "::error::Unsupported tag name: '$TAG'"; exit 1 ;;
+          esac
+          git checkout --quiet --detach "refs/tags/$TAG"
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: "24"
+          package-manager-cache: false
+      - name: Build Astro
+        env:
+          SITE_VERSION: ${{ env.TAG }}
+        run: |
+          npm install --global "$(node -p 'require("./package.json").packageManager')"
+          pnpm install --frozen-lockfile
+          pnpm build
+          test -s dist/index.html
+          test -s dist/about/index.html
+          test -s dist/imprint/index.html
+          grep -qF "/releases/tag/$TAG\"" dist/index.html
+          tar -C dist -czf site.tar.gz .
+          sha256sum site.tar.gz | cut -d ' ' -f 1 > site.sha256
+      - name: Commit the release to the release branch
+        id: commit
+        run: |
+          # Parents: the previous release commit (so Blossom can fast-forward,
+          # also to an older tag) and the tagged commit itself.
+          parents=()
+          if git rev-parse --quiet --verify refs/remotes/origin/release >/dev/null; then
+            parents+=(-p refs/remotes/origin/release)
+          fi
+          parents+=(-p "refs/tags/$TAG^{commit}")
+
+          export GIT_AUTHOR_NAME='github-actions[bot]' GIT_COMMITTER_NAME='github-actions[bot]'
+          export GIT_AUTHOR_EMAIL='41898282+github-actions[bot]@users.noreply.github.com'
+          export GIT_COMMITTER_EMAIL="$GIT_AUTHOR_EMAIL"
+          commit=$(git commit-tree "refs/tags/$TAG^{tree}" "${parents[@]}" -m "Release $TAG")
+          git push origin "$commit:refs/heads/release"
+          echo "sha=$commit" >> "$GITHUB_OUTPUT"
+      - name: Publish the build for the release commit
+        env:
+          GH_TOKEN: ${{ github.token }}
+          COMMIT: ${{ steps.commit.outputs.sha }}
+        run: |
+          gh release create "blossom-$COMMIT" site.tar.gz site.sha256 \
+            --target "$COMMIT" --title "Blossom build $TAG" \
+            --notes "Static Astro build of $TAG for commit $COMMIT." --prerelease --latest=false
+          echo "Published $TAG as $COMMIT on release" >> "$GITHUB_STEP_SUMMARY"

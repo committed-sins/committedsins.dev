@@ -4,13 +4,15 @@ Blossom serves the static Astro build with an internal Caddy container. The shar
 
 ## Build and publish
 
-The **Build for Blossom** workflow runs when a signed source commit lands on `main`. To start it manually, choose **Actions → Build for Blossom → Run workflow** on `main`. The workflow publishes the static site and its SHA-256 checksum as assets on a pre-release named `blossom-<commit SHA>`.
+Only published GitHub releases go live; merging to `main` does not deploy. Publish a release with a new tag on `main`, such as `v0.3.0` (letters, digits, `.`, `_`, `-`). Pre-releases are not deployed.
 
-The site-specific pull service fetches `main`, then checks for the build for that exact commit. It retries on the next timer run while the build is pending. After verifying and unpacking the archive into `.blossom/releases/`, it atomically changes the `.blossom/site` symlink. The previous release remains on disk.
+The **Release** workflow builds the tagged files with `SITE_VERSION` set to the tag, so the footer shows the version and links to its release. It commits the tagged files to the branch `release`. Each release commit has the previous one as a parent, so the branch only ever fast-forwards, also for a rollback. The workflow then publishes the static site and its SHA-256 checksum as assets on a pre-release named `blossom-<release commit SHA>`. To deploy an older release again, choose **Actions → Release → Run workflow** and enter its tag.
+
+The site-specific pull service fetches `release`, then checks for the build for that exact commit. It retries on the next timer run while the build is pending. After verifying and unpacking the archive into `.blossom/releases/`, it atomically changes the `.blossom/site` symlink. The previous release remains on disk.
 
 ## First installation
 
-On a fresh host, create `/srv/sites/committedsins.dev` owned by `mjs` and clone the public repository with `--branch main --single-branch`. On the existing Blossom checkout, pull `main` first. As `mjs`, run:
+On a fresh host, create `/srv/sites/committedsins.dev` owned by `mjs` and clone the public repository with `--branch release --single-branch`. As `mjs`, run:
 
 ```sh
 cd /srv/sites/committedsins.dev
@@ -30,9 +32,23 @@ sudo docker exec aureka-proxy-caddy-caddy-1 wget -q -O /dev/null http://committe
 sudo systemctl enable --now site-pull@committedsins.dev.timer
 ```
 
+A checkout that still follows `main` switches to `release` once, after the first release exists:
+
+```sh
+cd /srv/sites/committedsins.dev
+git status --short   # must be empty
+git remote set-branches origin release
+git fetch origin && git switch release
+git status -sb       # ## release...origin/release
+```
+
 Apply changes to the installed script or drop-in with `install` and reload systemd. Changes to Caddy or Compose still require a manual reload or recreation. When checking a failed run, use `journalctl -u site-pull@committedsins.dev.service` and compare `readlink .blossom/site` with `git rev-parse HEAD`.
 
 The website container serves the project overview at `/projects/` and organization overviews under `/organization/`. Retired project and organization URLs return HTTP 404.
+
+## Caching
+
+HTML and other files are served with `Cache-Control: no-cache`, so browsers revalidate them on every use and see a new release at once. Files below `/_astro/` carry a content hash in their name and are cached for a year as `immutable`.
 
 ## Refresh project data
 
@@ -44,7 +60,7 @@ For the first installation of the project refresh, make sure the profile README 
 
 ```sh
 cd /srv/sites/committedsins.dev
-git pull --ff-only origin main
+git pull --ff-only
 sudo install -m 644 deploy/blossom/committedsins-projects.{service,timer} /etc/systemd/system/
 sudo systemctl daemon-reload
 sudo systemctl start committedsins-projects.service
