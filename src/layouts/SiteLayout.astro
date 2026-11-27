@@ -2,6 +2,7 @@
 import { getImage, Image } from "astro:assets";
 import copperMonogram from "../assets/brand/committed-sins-copper.png";
 import "../styles/site.css";
+import { websiteRepository } from "../lib/project-directories";
 
 interface Props
 {
@@ -15,6 +16,8 @@ const siteName = "Committed Sins";
 const pageTitle = title === siteName ? siteName : `${title} · ${siteName}`;
 const favicon = await getImage({ src: copperMonogram, width: 64, height: 64, format: "png" });
 const canonical = Astro.props.canonical ?? (Astro.site && new URL(Astro.url.pathname, Astro.site));
+// The release workflow sets SITE_VERSION to the release tag; local builds have none.
+const siteVersion = import.meta.env.SITE_VERSION as string | undefined;
 const navigation = [
   { label: "Michael J. Stallinger", href: "/about/" },
   { label: "Projects", href: "/projects/" },
@@ -52,7 +55,11 @@ const navigation = [
     <main id="main"><slot /></main>
     <footer class="site-footer">
       <div class="shell footer-inner">
-        <p><span hidden data-site-release><a></a><span aria-hidden="true"> · </span></span>Force pushing with love · 2026</p>
+        <p>
+          {siteVersion && (
+            <><a href={`${websiteRepository}/releases/tag/${siteVersion}`} aria-label={`Website release ${siteVersion}`}>{siteVersion}</a><span aria-hidden="true"> · </span></>
+          )}Force pushing with love · 2026
+        </p>
         <div class="footer-links">
           <a href="/rss.xml">RSS</a>
           <a href="/imprint/" aria-current={Astro.url.pathname === "/imprint/" ? "page" : undefined}>Imprint</a>
@@ -61,35 +68,3 @@ const navigation = [
     </footer>
   </body>
 </html>
-
-<script>
-  import type { ProfileProject } from "../lib/github-projects";
-  import { publicProjectsFilename, websiteRepository } from "../lib/project-directories";
-
-  async function showSiteRelease()
-  {
-    const container = document.querySelector<HTMLElement>("[data-site-release]");
-    const link = container?.querySelector("a");
-    if (!container || !link) return;
-
-    try {
-      const response = await fetch(`/data/${publicProjectsFilename}`, { signal: AbortSignal.timeout(4_000) });
-      if (!response.ok) return;
-
-      const areas: ProfileProject[] = await response.json();
-      const website = areas.flatMap(({ groups }) => groups.flatMap(({ rows }) => rows))
-        .find(({ repository }) => repository === websiteRepository);
-      const release = website?.release;
-      if (!release?.name || !release.href.startsWith(`${websiteRepository}/releases/tag/`)) return;
-
-      link.href = release.href;
-      link.textContent = release.name;
-      link.setAttribute("aria-label", `Website release ${release.name}`);
-      container.hidden = false;
-    } catch {
-      // Keep the version hidden if the project snapshot is unavailable.
-    }
-  }
-
-  void showSiteRelease();
-</script>

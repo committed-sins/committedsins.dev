@@ -31,7 +31,7 @@ Open `http://127.0.0.1:4323/`. Re-run the snapshot command to pick up GitHub cha
 
 `pnpm build` generates the site layout in `dist/`. The build reads local content and assets. Caddy renders the project directory at request time.
 
-Push signed source commits to `main` to start the **Build for Blossom** GitHub workflow. You can also start it from the Actions tab. See the [Blossom deployment notes](deploy/blossom/README.md) for setup and troubleshooting.
+Push signed source commits to `main`; the **Check** workflow builds the site and validates the Caddyfile. Merging to `main` does not deploy. Publishing a GitHub release does: the **Release** workflow builds the site with the release tag in the footer, linked to the release, and Blossom picks it up within about a minute. Local builds show no version; set `SITE_VERSION` to preview one. See the [Blossom deployment notes](deploy/blossom/README.md) for setup and troubleshooting.
 
 ## Update the project directory
 
