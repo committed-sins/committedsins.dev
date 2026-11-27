@@ -1,10 +1,17 @@
 ---
 import { Image } from "astro:assets";
+import aurekaIcon from "../assets/about/aureka-icon.png";
+import bmdIcon from "../assets/about/bmd-icon.png";
 import glassImage from "../assets/about/mjs-glass.png";
 import GitHubIcon from "../assets/about/profiles/github.svg";
 import LinkedInIcon from "../assets/about/profiles/linkedin.svg";
 import StackOverflowIcon from "../assets/about/profiles/stack-overflow.svg";
 import SiteLayout from "../layouts/SiteLayout.astro";
+
+const work = [
+  { name: "Aureka Systems e.U.", href: "https://aureka.at/", role: "Founder", icon: aurekaIcon },
+  { name: "BMD Systemhaus GmbH", href: "https://bmd.at/", role: "Team leader, development consultant", icon: bmdIcon },
+];
 
 const profiles = [
   { name: "LinkedIn", href: "https://www.linkedin.com/in/mjstallinger/", Icon: LinkedInIcon },
@@ -25,22 +32,22 @@ const profiles = [
       <div class="prose">
         <p>Committed Sins is my personal site.</p>
         <p>It’s where I keep the changelogs for things that were supposed to take five minutes.</p>
-        <section class="about-work" aria-labelledby="work">
+        <section aria-labelledby="work">
           <h2 id="work">Work</h2>
-          <dl>
-            <div>
-              <dt><a href="https://aureka.at/">Aureka Systems e.U.</a></dt>
-              <dd>Founder</dd>
-            </div>
-            <div>
-              <dt><a href="https://bmd.at/">BMD Systemhaus GmbH</a></dt>
-              <dd>Team leader, development consultant</dd>
-            </div>
-          </dl>
+          <p class="subtitle section-intro">Where the bills get paid.</p>
+          <ul class="about-links" role="list">
+            {work.map(({ name, href, role, icon }) => (
+              <li>
+                <a href={href}><img src={icon.src} alt="" width="16" height="16" />{name}</a>
+                <p class="about-role">{role}</p>
+              </li>
+            ))}
+          </ul>
         </section>
         <section aria-labelledby="profiles">
           <h2 id="profiles">Profiles</h2>
-          <ul class="profile-links" role="list">
+          <p class="subtitle section-intro">Elsewhere, same person.</p>
+          <ul class="about-links" role="list">
             {profiles.map(({ name, href, Icon }) => (
               <li><a href={href}><Icon aria-hidden="true" focusable="false" />{name}</a></li>
             ))}
