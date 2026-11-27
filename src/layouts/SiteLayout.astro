@@ -17,6 +17,7 @@ const favicon = await getImage({ src: copperMonogram, width: 64, height: 64, for
 const canonical = Astro.props.canonical ?? (Astro.site && new URL(Astro.url.pathname, Astro.site));
 const navigation = [
   { label: "Michael J. Stallinger", href: "/about/" },
+  { label: "Projects", href: "/projects/" },
   { label: "The changelogs", href: "/writing/" },
 ];
 ---
