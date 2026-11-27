@@ -57,7 +57,7 @@ const navigation = [
       <div class="shell footer-inner">
         <p>
           {siteVersion && (
-            <><a href={`${websiteRepository}/releases/tag/${siteVersion}`} aria-label={`Website release ${siteVersion}`}>{siteVersion}</a><span aria-hidden="true"> · </span></>
+            <><a class="footer-version" href={`${websiteRepository}/releases/tag/${siteVersion}`} aria-label={`Website release ${siteVersion}`}>{siteVersion}</a><span aria-hidden="true"> · </span></>
           )}Force pushing with love · 2026
         </p>
         <div class="footer-links">
