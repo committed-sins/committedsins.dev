@@ -43,12 +43,16 @@ async function listRepositories(owner: string)
   }
 }
 
-async function readProjectReadme(repo: Repository): Promise<ProjectReadme | undefined>
+function repositoryFileUrl(repo: Repository, filename: string)
 {
   const branch = repo.default_branch.split("/").map(encodeURIComponent).join("/");
-  const url = `https://raw.githubusercontent.com/${repo.full_name}/refs/heads/${branch}/README.md`;
+  return `https://raw.githubusercontent.com/${repo.full_name}/refs/heads/${branch}/${filename}`;
+}
+
+async function readProjectReadme(repo: Repository): Promise<ProjectReadme | undefined>
+{
   try {
-    const response = await fetch(url, { signal: AbortSignal.timeout(5_000) });
+    const response = await fetch(repositoryFileUrl(repo, "README.md"), { signal: AbortSignal.timeout(5_000) });
     if (!response.ok) return undefined;
 
     const readme = await response.text();
@@ -61,6 +65,19 @@ async function readProjectReadme(repo: Repository): Promise<ProjectReadme | unde
       return link ? { text: link[1], href: link[2] } : { text };
     });
     return { summary: summary?.[1].replace(/\s+/g, " ").trim(), details };
+  } catch {
+    return undefined;
+  }
+}
+
+async function readPluginManifestName(repo: Repository): Promise<string | undefined>
+{
+  try {
+    const response = await fetch(repositoryFileUrl(repo, "manifest.json"), { signal: AbortSignal.timeout(5_000) });
+    if (!response.ok) return undefined;
+
+    const manifest = await response.json();
+    return typeof manifest?.name === "string" ? manifest.name.trim() || undefined : undefined;
   } catch {
     return undefined;
   }
@@ -98,12 +115,18 @@ export async function loadProjectRepositories(projects: ProfileProject[], owner:
   const repositories = allRepositories.filter(({ topics: repoTopics, html_url }) =>
     curatedRepos.has(html_url) || repoTopics?.some((topic) => topics.has(topic)));
   const listedByRepo = new Map(directory.map((plugin) => [plugin.repo.toLowerCase(), plugin]));
-  const metadata = new Map<string, { release?: Release; readme?: ProjectReadme }>();
+  const metadata = new Map<string, { release?: Release; readme?: ProjectReadme; manifestName?: string }>();
   for (let start = 0; start < repositories.length; start += 4) {
     await Promise.all(repositories.slice(start, start + 4).map(async (repo) =>
     {
-      const [release, readme] = await Promise.all([readLatestRelease(repo), readProjectReadme(repo)]);
-      metadata.set(repo.html_url, { release, readme });
+      const readManifest = topics.has("obsidian-plugin") && repo.topics.includes("obsidian-plugin")
+        && !listedByRepo.has(repo.full_name.toLowerCase());
+      const [release, readme, manifestName] = await Promise.all([
+        readLatestRelease(repo),
+        readProjectReadme(repo),
+        readManifest ? readPluginManifestName(repo) : undefined,
+      ]);
+      metadata.set(repo.html_url, { release, readme, manifestName });
     }));
   }
 
@@ -134,7 +157,8 @@ export async function loadProjectRepositories(projects: ProfileProject[], owner:
       const details = metadata.get(repo.html_url);
       const release = details?.release;
       const directoryLink = plugin ? { name: "Published", href: `https://obsidian.md/plugins?id=${plugin.id}` } : undefined;
-      const name = plugin?.name ?? previous?.name ?? repo.name.replace(/^obsidian-plugin-/, "");
+      const name = plugin?.name ?? (isObsidian ? details?.manifestName : undefined)
+        ?? previous?.name ?? repo.name.replace(/^obsidian-plugin-/, "");
       const statusLink = directoryLink ?? (isObsidian ? undefined : previous?.statusLink);
       const published = statusLink || (!isObsidian && release && !release.prerelease);
       const status = published ? "Published" : release ? "Preview" : "Development";
@@ -142,11 +166,14 @@ export async function loadProjectRepositories(projects: ProfileProject[], owner:
       const repoDescription = isCompany
         ? previous?.description || repo.description
         : repo.description || previous?.description;
+      const description = details?.readme?.summary || repoDescription || "";
       const row: ProjectRow = {
         name,
         href: directoryLink?.href ?? liveWebsite ?? repo.html_url,
         repository: repo.html_url,
-        description: details?.readme?.summary || repoDescription || "",
+        description: isObsidian && status === "Development"
+          ? description.replace(/(^|[.!?]\s+)(?:design|planning) stage\.?$/i, "$1").trimEnd()
+          : description,
         details: details?.readme?.details,
         status,
         statusLink,

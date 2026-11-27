@@ -47,6 +47,8 @@ The xDMZ, LiMiS, and StaGeD profile READMEs drive the directories under **Others
 
 Add the configured topic to a public repository in the organization to list it in that area. The site uses the repo description or a plain-text paragraph under an optional `## Summary` heading in the repo README. Each area has a single list ordered by **Published**, **Preview**, and **Development**. The version links directly to its GitHub release. An Obsidian directory listing, a live website link, or the latest release being stable marks a project as **Published**. For Obsidian plugins, the directory listing determines publication. An available release without publication is a **Preview**. A project without either is in **Development**. Blossom deployment releases are excluded from the website's release history on the project page.
 
+Obsidian plugin names come from the Community directory, then the repository's `manifest.json`, then the profile README or repository name.
+
 On project pages, an optional `## Project details` section in a repository README adds plain-text paragraphs and standalone HTTPS Markdown links to its row.
 
 The [Aureka Systems GitHub profile README](https://github.com/aurekasystems/.github/blob/main/profile/README.md) defines the areas on `/organization/aureka-systems/` in the same way, using public repositories from the Aureka Systems organization.
